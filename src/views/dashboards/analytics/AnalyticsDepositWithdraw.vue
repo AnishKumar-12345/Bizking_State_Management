@@ -1,0 +1,256 @@
+<script setup>
+// Anish UI
+import { useTheme } from 'vuetify'
+import triangleDark from '@/assets/images/misc/triangle-dark.png'
+import triangleLight from '@/assets/images/misc/triangle-light.png'
+// import trophy from '@/assets/images/misc/trophy.png'
+import avatar from '@/assets/images/avatars/avatar-16.png'
+
+ 
+const vuetifyTheme = useTheme()
+const triangleBg = computed(() => {
+  return vuetifyTheme.global.name.value === 'light' ? triangleLight : triangleDark
+})
+// Inbuilt UI
+// import americanBank from '@/assets/images/logos/american-bank.png'
+// import aws from '@/assets/images/logos/aws.png'
+// import citiBank from '@/assets/images/logos/citi-bank.png'
+// import digitalOcean from '@/assets/images/logos/digital-ocean.png'
+// import github from '@/assets/images/logos/github.png'
+// import google from '@/assets/images/logos/google.png'
+// import gumroad from '@/assets/images/logos/gumroad.png'
+// import mastercardLabel from '@/assets/images/logos/mastercard-label.png'
+// import slack from '@/assets/images/logos/slack.png'
+// import stripe from '@/assets/images/logos/stripe.png'
+
+// const deposits = [
+//   {
+//     title: 'Gumroad Account',
+//     subtitle: 'Sell UI Kit',
+//     amount: '+$4,650',
+//     logo: gumroad,
+//   },
+//   {
+//     title: 'Mastercard',
+//     subtitle: 'Wallet deposit',
+//     amount: '+$92,705',
+//     logo: mastercardLabel,
+//   },
+//   {
+//     title: 'Stripe Account',
+//     subtitle: 'iOS Application',
+//     amount: '+$957',
+//     logo: stripe,
+//   },
+//   {
+//     title: 'American Bank',
+//     subtitle: 'American Bank',
+//     amount: '+$6,837',
+//     logo: americanBank,
+//   },
+//   {
+//     title: 'Bank Account',
+//     subtitle: 'Wallet deposit',
+//     amount: '+$8,934',
+//     logo: citiBank,
+//   },
+// ]
+// const withdraws = [
+//   {
+//     title: 'Google Adsense',
+//     subtitle: 'Paypal deposit',
+//     amount: '-$145',
+//     logo: google,
+//   },
+//   {
+//     title: 'Github Enterprise',
+//     subtitle: 'Security & compliance',
+//     amount: '-$1870',
+//     logo: github,
+//   },
+//   {
+//     title: 'Upgrade Slack Plan',
+//     subtitle: 'Debit card deposit',
+//     amount: '-$450',
+//     logo: slack,
+//   },
+//   {
+//     title: 'Digital Ocean',
+//     subtitle: 'Cloud Hosting',
+//     amount: '-$540',
+//     logo: digitalOcean,
+//   },
+//   {
+//     title: 'AWS Account',
+//     subtitle: 'Choosing a Cloud Platform',
+//     amount: '-$21',
+//     logo: aws,
+//   },
+// ]
+</script>
+
+<template>
+<!-- Anish UI -->
+<VCard
+    title="Products!"
+    
+    class="position-relative"
+  >
+    <VCardText>
+      <h4 class="text-4xl font-weight-medium text-primary">
+        20
+      </h4>
+        <p>🎉</p>
+      <!-- <p>78% of target 🚀</p> -->
+      <VBtn size="small">
+        View 
+      </VBtn>
+    </VCardText>
+
+    <!-- Triangle Background -->
+    <VImg
+      :src="triangleBg"
+      class="triangle-bg flip-in-rtl"
+    />
+
+    <!-- Trophy -->
+    <img src="@/assets/images/avatars/avatar-16.png" class="trophy4">
+
+    <!-- <VImg
+      :src="avatar"
+      class="trophy4"
+    /> -->
+  </VCard>
+<!-- Inbuilt UI -->
+  <!-- <VCard>
+    <VRow no-gutters>
+      <VCol
+        cols="12"
+        md="6"
+      >
+        <VCardItem>
+          <VCardTitle>Deposit</VCardTitle>
+
+          <template #append>
+            <a
+              href="javascript:void(0)"
+              class="text-sm font-weight-medium"
+            >View All</a>
+          </template>
+        </VCardItem>
+
+        <VCardText>
+          <VList class="card-list">
+            <VListItem
+              v-for="deposit in deposits"
+              :key="deposit.logo"
+            >
+              <template #prepend>
+                <VAvatar
+                  start
+                  rounded
+                >
+                  <VImg
+                    :height="29"
+                    :width="28"
+                    :src="deposit.logo"
+                  />
+                </VAvatar>
+              </template>
+
+              <VListItemTitle class="text-sm font-weight-semibold mb-1">
+                {{ deposit.title }}
+              </VListItemTitle>
+              <VListItemSubtitle class="text-xs">
+                {{ deposit.subtitle }}
+              </VListItemSubtitle>
+
+              <template #append>
+                <VListItemAction class="text-success font-weight-semibold">
+                  {{ deposit.amount }}
+                </VListItemAction>
+              </template>
+            </VListItem>
+          </VList>
+        </VCardText>
+      </VCol>
+
+      <VDivider
+        :vertical="$vuetify.display.mdAndUp"
+        :inset="$vuetify.display.mdAndUp"
+      />
+
+      <VCol
+        cols="12"
+        md="6"
+      >
+        <VCardItem>
+          <VCardTitle>Withdraw</VCardTitle>
+
+          <template #append>
+            <a
+              href="javascript:void(0)"
+              class="text-sm font-weight-medium"
+            >View All</a>
+          </template>
+        </VCardItem>
+
+        <VCardText>
+          <VList class="card-list">
+            <VListItem
+              v-for="withdraw in withdraws"
+              :key="withdraw.logo"
+            >
+              <template #prepend>
+                <VAvatar
+                  start
+                  rounded
+                >
+                  <VImg
+                    :height="29"
+                    :width="28"
+                    :src="withdraw.logo"
+                  />
+                </VAvatar>
+              </template>
+
+              <VListItemTitle class="text-sm font-weight-semibold mb-1">
+                {{ withdraw.title }}
+              </VListItemTitle>
+              <VListItemSubtitle class="text-xs">
+                {{ withdraw.subtitle }}
+              </VListItemSubtitle>
+
+              <template #append>
+                <VListItemAction class="text-error font-weight-semibold">
+                  {{ withdraw.amount }}
+                </VListItemAction>
+              </template>
+            </VListItem>
+          </VList>
+        </VCardText>
+      </VCol>
+    </VRow>
+  </VCard> -->
+</template>
+
+<style lang="scss" scoped>
+// Anish styles
+.triangle-bg {
+  position: absolute;
+  inline-size: 10.375rem;
+  inset-block-end: 0;
+  inset-inline-end: 0;
+}
+
+.trophy4 {
+  position: absolute;
+  inline-size: 9rem;
+  inset-block-end:  1rem;
+  inset-inline-end: -1rem;
+}
+
+// .card-list {
+//   --v-card-list-gap: 1.5rem;
+// }
+</style>
