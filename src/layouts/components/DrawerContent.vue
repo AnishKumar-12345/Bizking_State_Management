@@ -27,76 +27,108 @@ export default{
         },
         {
           id: 2,
-          title: 'Purchase Management ',
-          icon: "mdi-account-cog-outline",
+          title: 'Lead  ',
+          icon: "fluent-mdl2:party-leader",
           children: [
-            { id: 21, title: 'Create Purchase Order', route: '/Createpurchaseorder' },
-            { id: 22, title: 'View Purchase Order', route: '/Viewpurchaseorder' },
-            { id: 23, title: 'View Purchase History', route: '/Viewpurchasehistory' },
-
-          ],
+            { id: 21, title: 'Create Lead', route: '/Leadcreate' },
+            { id: 22, title: 'Update Lead', route: '/LeadView' },
+         ],
+          expanded: false,
+        }, 
+         {
+          id: 3,
+          title: 'Oppertunity  ',
+          icon: "ic:baseline-connect-without-contact",
+          children: [
+            { id: 23, title: 'View Oppertunity', route: '/Createpurchaseorder' },
+            { id: 24, title: 'Generate Quote', route: '/Viewpurchaseorder' },
+             { id: 25, title: 'Update Oppertunity', route: '/Viewpurchaseorder' },
+              { id: 26, title: 'Close Oppertunity', route: '/Viewpurchaseorder' },
+         ],
           expanded: false,
         },
-        //  {
-        //   id: 3,
-        //   title: 'Sales Management ',
-        //   icon: "mdi-account-group-outline",
-        //   children: [
-        //     { id: 23, title: 'View Oppertunity', route: '/account-settings' },
-        //     { id: 24, title: 'Update Oppertunity', route: '/tables' },
-        //      { id: 25, title: 'Generate Quote', route: '/tables' },
-        //       { id: 26, title: 'Close Oppertunity', route: '/tables' },          
-
-        //   ],
-        //   expanded: false,
-        // },
         {
           id: 4,
-          title: 'Warehouse Management',
-          icon: "mdi-account-wrench-outline",
+          title: 'Service  ',
+          icon: "ri:customer-service-2-line",
           children: [
-            { id: 27, title: 'Input Stock', route: '/Createwarehouseinput' },
-            { id: 28, title: 'Output Stock', route: '/tables' },
-             { id: 29, title: 'Generate D.C', route: '/tables' },                    
-              { id: 30, title: 'Update RTV', route: '/tables' },  
+            { id: 27, title: 'Add Service', route: '/Createpurchaseorder' },
+            { id: 28, title: 'Update Service', route: '/Viewpurchaseorder' },
+             { id: 29, title: 'Delete Service', route: '/Viewpurchaseorder' },             
+         ],
+          expanded: false,
+        },
+         {
+          id: 5,
+          title: 'Product  ',
+          icon: "ic:baseline-production-quantity-limits",
+          children: [
+            { id: 30, title: 'Add Product', route: '/Createpurchaseorder' },
+            { id: 31, title: 'Update Product', route: '/Viewpurchaseorder' },
+             { id: 32, title: 'Delete Product', route: '/Viewpurchaseorder' },             
+         ],
+          expanded: false,
+        },
+         {
+          id: 6,
+          title: 'Merchant',
+          icon: "mdi-person-group-outline",
+          children: [
+            { id: 33, title: 'Onboard Merchant', route: '/account-settings' },
+            { id: 34, title: 'Update Merchant ', route: '/tables' },
+             { id: 35, title: 'Update Merchant ', route: '/tables' },                    
+
+          ],
+          expanded: false,
+        },
+          {
+          id: 7,
+          title: 'Brand',
+          icon: "mdi-alpha-b-circle-outline",
+          children: [
+            { id: 36, title: 'Onboard Manufacturer', route: '/account-settings' },
+            { id: 37, title: 'Update Manufacturer ', route: '/tables' },                            
+
           ],
           expanded: false,
         },
         {
-          id: 5,
-          title: 'Store Inventory Management',
-          icon: "mdi-book-open-outline",
+          id: 8,
+          title: 'Purchase  ',
+          icon: "bx:purchase-tag-alt",
           children: [
-            { id: 31, title: 'View Store Level', route: '/account-settings' },
-            { id: 32, title: 'Update Input Stock', route: '/tables' },
-             { id: 33, title: 'Delete Product', route: '/tables' },                    
+            { id: 38, title: 'Create Order', route: '/Createpurchaseorder' },
+            { id: 39, title: 'View Order', route: '/Viewpurchaseorder' },
+            { id: 40, title: 'View History', route: '/Viewpurchasehistory' },
+
+          ],
+          expanded: false,
+        },     
+        {
+          id: 9,
+          title: 'Warehouse ',
+          icon: "material-symbols:warehouse-outline",
+          children: [
+            { id: 41, title: 'Input Stock', route: '/Createwarehouseinput' },
+            { id: 42, title: 'Output Stock', route: '/tables' },
+             { id: 43, title: 'Generate D.C', route: '/tables' },                    
+              { id: 44, title: 'Update RTV', route: '/tables' },  
+          ],
+          expanded: false,
+        },
+        {
+          id: 10,
+          title: 'Store Inventory',
+          icon: "carbon:store",
+          children: [
+            { id: 45, title: 'View Store', route: '/account-settings' },
+            { id: 46, title: 'Update Stock', route: '/tables' },
+             { id: 47, title: 'Delete Product', route: '/tables' },                    
 
           ],
           expanded: false,
         },
-        // {
-        //   id: 6,
-        //   title: 'Merchant',
-        //   icon: "mdi-account-arrow-right-outline",
-        //   children: [
-        //     { id: 33, title: 'Onboard Merchant', route: '/account-settings' },
-        //     { id: 34, title: 'Update Merchant ', route: '/tables' },
-        //      { id: 35, title: 'Update Merchant ', route: '/tables' },                    
-
-        //   ],
-        //   expanded: false,
-        // },
-        //   {
-        //   id: 7,
-        //   title: 'Brand',
-        //   icon: "mdi-alpha-b-circle-outline",
-        //   children: [
-        //     { id: 35, title: 'Onboard Manufacturer', route: '/account-settings' },
-        //     { id: 36, title: 'Update Manufacturer ', route: '/tables' },                            
-
-        //   ],
-        //   expanded: false,
-        // },
+       
          
         // Add more parent items with or without children as needed
       ],
@@ -154,19 +186,21 @@ export default{
       <!-- <v-container class="custom-scrollbar"> -->
 
     <VerticalNavLink class="custom-scrollbar"> 
-    
+      
       <v-list-item-group  v-for="parentItem in parentItems" :key="parentItem.id">
+  
         <v-list-item 
        class="list-item"
           style="margin:8px; border-top-right-radius: 30px;
                 border-bottom-right-radius: 30px;width:95%;"
          :to="parentItem.route"
+         :style="{ backgroundColor: parentItem.expanded ? '#956D4B' : '' , color: parentItem.expanded ? '#ffffff' : '' }"
          @click="toggleChildren(parentItem)">
-          <!-- <v-list-item-icon style="gap: 0.5rem;">
+          <v-list-item-icon style="gap: 0.5rem;">
             <v-icon style="display:flex;float:left;margin-right:0.5rem;">{{ parentItem.icon || 'mdi-folder' }}</v-icon>
-          </v-list-item-icon> -->
-          <v-list-item-content >
-            <v-list-item-title style="line-height: 1.375rem;letter-spacing: 0.15px;margin-inline-end: auto;fontsize:x-small;font-size: 0.8rem;">     
+          </v-list-item-icon>
+          <v-list-item-content >        
+            <v-list-item-title style="line-height: 1.375rem;letter-spacing: 0.15px;margin-inline-end: auto;fontsize:x-small;font-size: 1rem;">     
               
               {{ parentItem.title }}    
             
@@ -175,20 +209,22 @@ export default{
             </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
+       
+       <!-- child navs -->
+        <v-list-item-group v-if="parentItem.expanded" >
+      
+            <v-list-item 
+            style="margin:5px"
+            v-for="childItem in parentItem.children" :key="childItem.id" @click="navigateTo(childItem.route)">
+              <v-list-item-content>
+                <v-list-item-title class="d-flex" style="font-size: 0.9rem;">
+                  <v-icon v-if="parentItem.children" style="float:left;margin-right:20px;margin-top:5px;font-size:.75rem">ri-checkbox-blank-circle-line</v-icon>
+                  
+                {{ childItem.title }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>  
+          </v-list-item-group>     
 
-    
-        <v-list-item-group v-if="parentItem.expanded">
-          <v-list-item 
-          style="margin:5px"
-           v-for="childItem in parentItem.children" :key="childItem.id" @click="navigateTo(childItem.route)">
-            <v-list-item-content>
-              <v-list-item-title class="d-flex" style="font-size: 0.8rem;">
-                <v-icon v-if="parentItem.children" style="float:left;margin-right:20px;margin-top:5px;font-size:.75rem">ri-checkbox-blank-circle-line</v-icon>
-                
-              {{ childItem.title }}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list-item-group>
       </v-list-item-group>
     </VerticalNavLink>
     <!-- </v-container> -->
@@ -344,7 +380,6 @@ export default{
 
 <style scoped>
 .custom-scrollbar {
-
     overflow-y: auto;
     scrollbar-width: thin; /* For Firefox */
     scrollbar-color: var(--scrollbar-track) var(--scrollbar-thumb); /* For Firefox */
@@ -363,6 +398,12 @@ export default{
   .custom-scrollbar::-webkit-scrollbar-track {
     background-color: var(--scrollbar-track); /* Color of the scrollbar track */
   }
+  .fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+  opacity: 0;
+}
 </style>>
 
 

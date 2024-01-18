@@ -14,9 +14,9 @@
                 cols="12"
               >
                 <VSelect
-                 
+                     v-model="selectedPurchaseOrder"
                   label="Brand or Manufacturer"
-                  :items="['TATA','Britania','Reliance','Arnapurna','Pepsico']"
+                  :items="['Jai Fresh Eggs & Meat Products','Ammammas easy2cook','Organic Express','Vijay Eggs','Roxy Roller Flour Mills (P) Ltd']"
                 />
               </VCol>
 
@@ -37,8 +37,9 @@
                 cols="12"
                 md="6"
               >
+              
                 <VTextField
-                
+                  type="date"
                   label="Date"
                 />
               </VCol>
@@ -50,10 +51,85 @@
                 <VSelect
                  
                   label="PO Status"
-                  :items="['Accept','Reject']"
+                  :items="['Draft','Created','Shared','Acknowledged','Received','Close']"
                 />
               </VCol>
-              
+
+              <VCol cols="12">
+      <VTable
+       :headers="headers"
+       :items="desserts"
+        
+      >
+       <thead>
+        <tr>
+          <th
+           class="text-center"
+            v-for="header in headers"
+            :key="header"
+          >
+            {{ header.text }}
+          </th>
+        </tr>
+      </thead>
+
+      <tbody>
+       <tr
+        v-for="item in filteredDesserts"
+        :key="item.po"
+      >
+       
+        <td class="text-center">{{ item.po }}</td>
+        <td class="text-center">
+          {{ item.Brand }}
+        </td>
+        <td class="text-center">
+          {{ item.HSN }}
+        </td>
+        <td class="text-center">
+          &#8377;{{ item.MRP }}
+        </td>
+        <td class="text-center">
+          <VTextField v-model="item.Quantity" type="number"/>
+          <!-- {{ item.Quantity }} -->
+        </td>
+         <td class="text-center">
+          {{ item.UOM }}
+        </td>
+        <td class="text-center">
+          &#8377;{{ item.PriceorUnit }}
+        </td>
+        <td class="text-center">
+          &#8377;{{ item.TaxableAmmount }}
+        </td>
+        <td class="text-center">
+          {{ item.CGST }}
+        </td>
+        <td class="text-center">
+          {{ item.SGST }}
+        </td>
+        <td class="text-center">
+          &#8377;{{ item.Ammount }}
+        </td>      
+              <!-- <VBtn
+                icon
+                variant="text"
+                color="default"
+                class="me-2"
+                size="small"
+                @click="deleteRow(item)"
+            >
+                <VIcon
+                icon="mdi-minus-circle-outline"
+                size="24"
+                />
+            </VBtn> -->
+      
+      </tr>
+      </tbody>        
+        </VTable>
+              </VCol>
+
               <VCol
                 cols="12"
                 class="d-flex flex-wrap gap-4"
@@ -91,7 +167,7 @@
         <VIcon
           icon="mdi-plus-box"
           size="30"        
-          color="#9155FD"       
+          color="#956D4B"       
           />   
         </V-btn>         
 
@@ -100,132 +176,7 @@
         class="table-rounded"
         hide-default-footer
         disable-sort -->
-      <VTable
-       :headers="headers"
-       :items="desserts"
-        
-      >
-       <thead>
-        <tr>
-          <th
-           class="text-center"
-            v-for="header in headers"
-            :key="header"
-          >
-            {{ header.text }}
-          </th>
-        </tr>
-      </thead>
 
-      <tbody>
-       <tr
-        v-for="item in data"
-        :key="item.po"
-      >
-       
-        <td class="text-center">{{ item.po }}</td>
-        <td class="text-center">
-          {{ item.ODate }}
-        </td>
-        <td class="text-center">
-          {{ item.status }}
-        </td>
-        <td class="text-center">
-          {{ item.OT }}
-        </td>
-        <td class="text-center">
-          {{ item.ST }}
-        </td>
-         <td class="text-center">
-          {{ item.total }}
-        </td>
-        <td  class="text-center">
-            <!-- <v-btn @click="deleteRow(item)" icon> -->
-              <!-- <v-icon small> - </v-icon> -->
-             
-            <!-- </v-btn> -->
-            <VBtn               
-                icon
-                variant="text"
-                color="default"
-                class="me-2"
-                size="x-small"
-                @click="editrow(item)"
-            >
-                <VIcon
-                icon="ri-pencil-line"
-                size="22"
-                />
-            </VBtn>
-            <VBtn            
-                icon
-                variant="text"
-                color="default"
-                class="me-2"
-                size="x-small"
-                @click="deleteRow(item)"
-            >
-                <VIcon
-                icon="ri-delete-bin-line"
-                size="22"
-                />
-            </VBtn>
-              <!-- <VBtn
-                icon
-                variant="text"
-                color="default"
-                class="me-2"
-                size="small"
-                @click="deleteRow(item)"
-            >
-                <VIcon
-                icon="mdi-minus-circle-outline"
-                size="24"
-                />
-            </VBtn> -->
-          </td>
-      </tr>
-      </tbody>
-        <!-- <thead>
-      <tr>
-        <th class="text-uppercase">
-          Dessert (100g serving)
-        </th>
-        <th class="text-center text-uppercase">
-          Calories
-        </th>
-        <th class="text-center text-uppercase">
-          Fat (g)
-        </th>
-        <th class="text-center text-uppercase">
-          Carbs (g)
-        </th>
-        <th class="text-center text-uppercase">
-          Protein (g)
-        </th>
-      </tr>
-    </thead> -->
-    <!-- <tbody>
-      <tr
-        v-for="item in desserts"
-        :key="item.dessert"
-      >
-        <td>{{ item.dessert }}</td>
-        <td class="text-center">
-          {{ item.calories }}
-        </td>
-        <td class="text-center">
-          {{ item.fat }}
-        </td>
-        <td class="text-center">
-          {{ item.carbs }}
-        </td>
-        <td class="text-center">
-          {{ item.protein }}
-        </td>
-      </tr>
-    </tbody> -->
-        </VTable>
 
  <VDialog v-model="dialog" max-width="600">
       <VCard title="Dialog Title">
@@ -299,113 +250,426 @@
             </VRow>
           </VForm>
         </VCardText>
-        <VCardActions>
-          <!-- <VBtn @click="saveAndClose">Save</VBtn> -->
-          <!-- <VBtn @click="resetAndClose" color="secondary" variant="tonal">Reset</VBtn> -->
-          <!-- <VBtn @click="closeDialog">Close</VBtn> -->
+        <VCardActions>        
         </VCardActions>
       </VCard>
     </VDialog>
+
     </div>
 </template>
 <script>
+// import { VDatePicker } from 'vuetify/lib/components/VDatePicker';
 export default {
+  components:{
+    // VDatePicker,
+  },
    data(){
     return{
+      selectedDate: null,
+      landscape: false,
+      noTitle: false,
+        selectedPurchaseOrder: null,
         dialog: false,
           data: [
             {
                 po: 'PO001',
-                ODate: '2024.01.12',
-                status: 'Draft',
-                OT: 24,
-                ST: 4,
-                total: 5,
+                Brand: 'Jai Fresh Eggs & Meat Products',
+                HSN:' ',
+                MRP: '65',
+                Quantity: 0,
+                UOM: 'Pack of 6',
+                PriceorUnit: '1428',
+                TaxableAmmount:'1200',
+                CGST: '3%',
+                SGST: '2%',
+                Ammount: '12000',
+
+            },
+             {
+                po: 'PO001',
+                Brand: 'Jai Fresh Eggs & Meat Products',
+                HSN:' ',
+                MRP: '65',
+                Quantity: 0,
+                UOM: 'Pack of 6',
+                PriceorUnit: '1428',
+                TaxableAmmount:'1200',
+                CGST: '3%',
+                SGST: '2%',
+                Ammount: '12000',
+
+            },
+             {
+                po: 'PO001',
+                Brand: 'Jai Fresh Eggs & Meat Products',
+                HSN:' ',
+                MRP: '65',
+                Quantity: 0,
+                UOM: 'Pack of 6',
+                PriceorUnit: '1428',
+                TaxableAmmount:'1200',
+                CGST: '3%',
+                SGST: '2%',
+                Ammount: '12000',
+
+            },
+             {
+                po: 'PO001',
+                Brand: 'Jai Fresh Eggs & Meat Products',
+                HSN:' ',
+                MRP: '65',
+                Quantity: 0,
+                UOM: 'Pack of 6',
+                PriceorUnit: '1428',
+                TaxableAmmount:'1200',
+                CGST: '3%',
+                SGST: '2%',
+                Ammount: '12000',
+
+            },
+             {
+                po: 'PO001',
+                Brand: 'Jai Fresh Eggs & Meat Products',
+                HSN:' ',
+                MRP: '65',
+                Quantity: 0,
+                UOM: 'Pack of 6',
+                PriceorUnit: '1428',
+                TaxableAmmount:'1200',
+                CGST: '3%',
+                SGST: '2%',
+                Ammount: '12000',
 
             },
             {
-                po: 'PO002',
-                ODate: '2024.01.12',
-                status: 'Created',
-                OT: 24,
-                ST: 4,
-                total: 5,
+                po: 'PO002',             
+                Brand: 'Ammammas easy2cook',
+                HSN:'19059090',
+                MRP: '70',
+                Quantity: 2,
+                UOM: '10 Pcs',
+                PriceorUnit: '1428',
+                "TaxableAmmount":'1200',
+                CGST: '3%',
+                SGST: '2%',
+                Ammount: '12000',
+            },
+             {
+                po: 'PO002',             
+                Brand: 'Ammammas easy2cook',
+                HSN:'19059090',
+                MRP: '70',
+                Quantity: 2,
+                UOM: '10 Pcs',
+                PriceorUnit: '1428',
+                "TaxableAmmount":'1200',
+                CGST: '3%',
+                SGST: '2%',
+                Ammount: '12000',
+            },
+             {
+                po: 'PO002',             
+                Brand: 'Ammammas easy2cook',
+                HSN:'19059090',
+                MRP: '70',
+                Quantity: 2,
+                UOM: '10 Pcs',
+                PriceorUnit: '1428',
+                "TaxableAmmount":'1200',
+                CGST: '3%',
+                SGST: '2%',
+                Ammount: '12000',
+            },
+             {
+                po: 'PO002',             
+                Brand: 'Ammammas easy2cook',
+                HSN:'19059090',
+                MRP: '70',
+                Quantity: 2,
+                UOM: '10 Pcs',
+                PriceorUnit: '1428',
+                "TaxableAmmount":'1200',
+                CGST: '3%',
+                SGST: '2%',
+                Ammount: '12000',
+            },
+             {
+                po: 'PO002',             
+                Brand: 'Ammammas easy2cook',
+                HSN:'19059090',
+                MRP: '70',
+                Quantity: 2,
+                UOM: '10 Pcs',
+                PriceorUnit: '1428',
+                "TaxableAmmount":'1200',
+                CGST: '3%',
+                SGST: '2%',
+                Ammount: '12000',
+            },
+            {
+                po: 'PO003',
+                 Brand: 'Organic Express',
+                HSN:' ',
+                MRP: '1250',
+                Quantity: 5,
+                UOM: '500 ml',
+                PriceorUnit: '1200',
+                "TaxableAmmount":'1000',
+                CGST: '3%',
+                SGST: '2%',
+                Ammount: '10000',
 
             },
             {
                 po: 'PO003',
-                ODate: '2024.01.12',
-                status: 'Created',
-                OT: 24,
-                ST: 4,
-                total: 5,
+                 Brand: 'Organic Express',
+                HSN:' ',
+                MRP: '1250',
+                Quantity: 5,
+                UOM: '500 ml',
+                PriceorUnit: '1200',
+                "TaxableAmmount":'1000',
+                CGST: '3%',
+                SGST: '2%',
+                Ammount: '10000',
+
+            },
+            {
+                po: 'PO003',
+                 Brand: 'Organic Express',
+                HSN:' ',
+                MRP: '1250',
+                Quantity: 5,
+                UOM: '500 ml',
+                PriceorUnit: '1200',
+                "TaxableAmmount":'1000',
+                CGST: '3%',
+                SGST: '2%',
+                Ammount: '10000',
+
+            },
+            {
+                po: 'PO003',
+                 Brand: 'Organic Express',
+                HSN:' ',
+                MRP: '1250',
+                Quantity: 5,
+                UOM: '500 ml',
+                PriceorUnit: '1200',
+                "TaxableAmmount":'1000',
+                CGST: '3%',
+                SGST: '2%',
+                Ammount: '10000',
+
+            },
+            {
+                po: 'PO003',
+                 Brand: 'Organic Express',
+                HSN:' ',
+                MRP: '1250',
+                Quantity: 5,
+                UOM: '500 ml',
+                PriceorUnit: '1200',
+                "TaxableAmmount":'1000',
+                CGST: '3%',
+                SGST: '2%',
+                Ammount: '10000',
 
             },
             {
                 po: 'PO004',
-                ODate: '2024.01.12',
-                status: 'Draft',
-                OT: 24,
-                ST: 4,
-                total: 5,
+                 Brand: 'Vijay Eggs',
+                HSN:' ',
+                MRP: '79',
+                Quantity: 5,
+                UOM: 'Pack of 6',
+                PriceorUnit: '1500',
+                "TaxableAmmount":'1200',
+                CGST: '3%',
+                SGST: '2%',
+                Ammount: '3000',
+
+            },
+            {
+                po: 'PO004',
+                 Brand: 'Vijay Eggs',
+                HSN:' ',
+                MRP: '79',
+                Quantity: 5,
+                UOM: 'Pack of 6',
+                PriceorUnit: '1500',
+                "TaxableAmmount":'1200',
+                CGST: '3%',
+                SGST: '2%',
+                Ammount: '3000',
+
+            },
+            {
+                po: 'PO004',
+                 Brand: 'Vijay Eggs',
+                HSN:' ',
+                MRP: '79',
+                Quantity: 5,
+                UOM: 'Pack of 6',
+                PriceorUnit: '1500',
+                "TaxableAmmount":'1200',
+                CGST: '3%',
+                SGST: '2%',
+                Ammount: '3000',
+
+            },
+            {
+                po: 'PO004',
+                 Brand: 'Vijay Eggs',
+                HSN:' ',
+                MRP: '79',
+                Quantity: 5,
+                UOM: 'Pack of 6',
+                PriceorUnit: '1500',
+                "TaxableAmmount":'1200',
+                CGST: '3%',
+                SGST: '2%',
+                Ammount: '3000',
+
+            },
+            {
+                po: 'PO004',
+                 Brand: 'Vijay Eggs',
+                HSN:' ',
+                MRP: '79',
+                Quantity: 5,
+                UOM: 'Pack of 6',
+                PriceorUnit: '1500',
+                "TaxableAmmount":'1200',
+                CGST: '3%',
+                SGST: '2%',
+                Ammount: '3000',
+
+            },
+            {
+                po: 'PO004',
+                 Brand: 'Vijay Eggs',
+                HSN:' ',
+                MRP: '79',
+                Quantity: 5,
+                UOM: 'Pack of 6',
+                PriceorUnit: '1500',
+                "TaxableAmmount":'1200',
+                CGST: '3%',
+                SGST: '2%',
+                Ammount: '3000',
 
             },
             {
                 po: 'PO005',
-                ODate: '2024.01.12',
-                status: 'Shared',
-                OT: 24,
-                ST: 4,
-                total: 5,
+                Brand: 'Roxy Roller Flour Mills (P) Ltd',
+                HSN:' ',
+                MRP: '200',
+                Quantity: 2,
+                UOM: '1 Kg',
+                PriceorUnit: '1200',
+                "TaxableAmmount":'1000',
+                CGST: '3%',
+                SGST: '2%',
+                Ammount: '2000',
 
             },
-              {
-                po: 'PO006',
-                ODate: '2024.01.12',
-                status: 'Acknowledged',
-                OT: 24,
-                ST: 4,
-                total: 5,
+             {
+                po: 'PO005',
+                Brand: 'Roxy Roller Flour Mills (P) Ltd',
+                HSN:' ',
+                MRP: '200',
+                Quantity: 2,
+                UOM: '1 Kg',
+                PriceorUnit: '1200',
+                "TaxableAmmount":'1000',
+                CGST: '3%',
+                SGST: '2%',
+                Ammount: '2000',
 
             },
-              {
-                po: 'PO007',
-                ODate: '2024.01.12',
-                status: 'Acknowledged',
-                OT: 24,
-                ST: 4,
-                total: 5,
+               {
+                po: 'PO005',
+                Brand: 'Roxy Roller Flour Mills (P) Ltd',
+                HSN:' ',
+                MRP: '200',
+                Quantity: 2,
+                UOM: '1 Kg',
+                PriceorUnit: '1200',
+                "TaxableAmmount":'1000',
+                CGST: '3%',
+                SGST: '2%',
+                Ammount: '2000',
 
             },
-              {
-                po: 'PO008',
-                ODate: '2024.01.12',
-                status: 'Acknowledged',
-                OT: 24,
-                ST: 4,
-                total: 5,
+               {
+                po: 'PO005',
+                Brand: 'Roxy Roller Flour Mills (P) Ltd',
+                HSN:' ',
+                MRP: '200',
+                Quantity: 2,
+                UOM: '1 Kg',
+                PriceorUnit: '1200',
+                "TaxableAmmount":'1000',
+                CGST: '3%',
+                SGST: '2%',
+                Ammount: '2000',
+
             },
+               {
+                po: 'PO005',
+                Brand: 'Roxy Roller Flour Mills (P) Ltd',
+                HSN:' ',
+                MRP: '200',
+                Quantity: 2,
+                UOM: '1 Kg',
+                PriceorUnit: '1200',
+                "TaxableAmmount":'1000',
+                CGST: '3%',
+                SGST: '2%',
+                Ammount: '2000',
+
+            },
+            
+              
     ],
       headers: [
         { text: 'Purchase Order', value: 'po' },
-        { text: 'Order Date', value: 'ODate' },
-        { text: 'Status', value: 'status' },
-        { text: 'Order To', value: 'OT' },
-        { text: 'Shipped To', value: 'ST' },
-        { text: 'Total', value: 'total' },
-        { text: 'Action', value: 'actions', sortable: false },        
+        { text: 'Brand', value: 'Brand' },
+        { text: 'HSN', value: 'HSN' },
+        { text: 'MRP', value: 'MRP' },
+        { text: 'Quantity', value: 'Quantity' },
+        { text: 'UOM', value: 'UOM' },
+        { text: 'Price/Unit', value: 'PriceorUnit' },        
+        { text: 'TaxableAmmount', value: 'TaxableAmmount' },   
+        { text: 'CGST', value: 'CGST' },  
+        { text: 'SGST', value: 'SGST' },  
+        { text: 'Ammount', value: 'Ammount' }, 
+
 
       ],
     }
    },
-   methods:{
-     deleteRow(item) {
-      // Implement your logic to delete the row
-      const index = this.data.indexOf(item);
-      if (index !== -1) {
-        this.data.splice(index, 1);
-      }
+     computed: {
+      filteredDesserts() {
+        if (!this.selectedPurchaseOrder) {
+          // return this.desserts; 
+        }
+
+        return this.data.filter(item => item.Brand === this.selectedPurchaseOrder);
+      },
     },
+   methods:{
+    onDateChange() {
+      console.log('Selected date:', this.selectedDate);
+    },
+    //  deleteRow(item) {
+    
+    //   const index = this.data.indexOf(item);
+    //   if (index !== -1) {
+    //     this.data.splice(index, 1);
+    //   }
+    // },
 
       openproductdialog(){
     console.log('check the dialog')

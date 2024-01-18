@@ -61,9 +61,9 @@ import UserProfile from '@/layouts/components/UserProfile.vue'
     </div>
 
     <!-- 👉 Footer -->
-    <template #footer>
+    <!-- <template #footer>
       <Footer />
-    </template>
+    </template> -->
   </VerticalNavLayout>
 </template>
 

@@ -86,8 +86,8 @@ const currencies = ['USD', 'EUR', 'GBP', 'AUD', 'BRL', 'CAD', 'CNY', 'CZK', 'DKK
   <VRow>
     <VCol cols="12">
       <VCard title="New Lead">
-        <VCardText class="d-flex">
-          <!-- 👉 Avatar -->
+        <!-- <VCardText class="d-flex">
+        
           <VAvatar
             rounded="lg"
             size="100"
@@ -95,7 +95,7 @@ const currencies = ['USD', 'EUR', 'GBP', 'AUD', 'BRL', 'CAD', 'CNY', 'CZK', 'DKK
             :image="accountDataLocal.avatarImg"
           />
 
-          <!-- 👉 Upload Photo -->
+         
           <form
             ref="refForm"
             class="d-flex flex-column justify-center gap-5"
@@ -138,9 +138,9 @@ const currencies = ['USD', 'EUR', 'GBP', 'AUD', 'BRL', 'CAD', 'CNY', 'CZK', 'DKK
 
             <p class="text-body-1 mb-0">Allowed JPG, GIF or PNG. Max size of 800K</p>
           </form>
-        </VCardText>
+        </VCardText> -->
 
-        <VDivider />
+        <!-- <VDivider /> -->
 
         <VCardText>
           <!-- 👉 Form -->
