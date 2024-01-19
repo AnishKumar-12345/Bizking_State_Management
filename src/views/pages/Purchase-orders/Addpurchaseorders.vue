@@ -41,6 +41,7 @@
                 <VTextField
                   type="date"
                   label="Date"
+                  :min="today"
                 />
               </VCol>
             
@@ -54,7 +55,23 @@
                   :items="['Draft','Created','Shared','Acknowledged','Received','Close']"
                 />
               </VCol>
-
+              <VDivider />
+                  <V-btn
+                  icon
+                  variant="text"
+                  color="default"
+                  class="mb-1 mt-2"
+                  size="small"
+                  style="margin-left: auto; display: block;"
+                  @click="openproductdialog()"
+                  >
+                  
+                      <VIcon
+                        icon="mdi-plus-box"
+                        size="30"        
+                        color="#956D4B"       
+                        />   
+                      </V-btn>     
               <VCol cols="12">
       <VTable
        :headers="headers"
@@ -81,7 +98,7 @@
        
         <td class="text-center">{{ item.po }}</td>
         <td class="text-center">
-          {{ item.Brand }}
+          {{ item.SKU }}
         </td>
         <td class="text-center">
           {{ item.HSN }}
@@ -90,7 +107,7 @@
           &#8377;{{ item.MRP }}
         </td>
         <td class="text-center">
-          <VTextField v-model="item.Quantity" type="number"/>
+          <VTextField v-model="item.Quantity" type="number" style="min-width:80px;"/>
           <!-- {{ item.Quantity }} -->
         </td>
          <td class="text-center">
@@ -111,7 +128,8 @@
         <td class="text-center">
           &#8377;{{ item.Ammount }}
         </td>      
-              <!-- <VBtn
+          <td >
+                <VBtn
                 icon
                 variant="text"
                 color="default"
@@ -123,7 +141,18 @@
                 icon="mdi-minus-circle-outline"
                 size="24"
                 />
+            </VBtn>
+
+             <!-- <VBtn
+              icon
+              variant="text"
+              color="default"
+              size="small"
+              @click="addNewRow(item)"
+            >
+              <VIcon icon="mdi-plus-circle-outline" size="24" />
             </VBtn> -->
+          </td>
       
       </tr>
       </tbody>        
@@ -153,25 +182,9 @@
     </VCol>  
   </VRow>
 
-     <VDivider />
-    <V-btn
-     icon
-     variant="text"
-     color="default"
-     class="mb-4 mt-4"
-     size="small"
-     style="margin-left: auto; display: block;"
-     @click="openproductdialog()"
-    >
-      <!-- class="mb-4 mt-4" -->
-        <VIcon
-          icon="mdi-plus-box"
-          size="30"        
-          color="#956D4B"       
-          />   
-        </V-btn>         
-
-<!-- <v-container fluid> -->
+      
+ <!-- class="mb-4 mt-4" -->
+    <!-- <v-container fluid> -->
     <!-- item-key="fullName"
         class="table-rounded"
         hide-default-footer
@@ -179,10 +192,10 @@
 
 
  <VDialog v-model="dialog" max-width="600">
-      <VCard title="Dialog Title">
+      <VCard title="Add Your Product">
         <VCardText>
           <!-- Dialog content -->
-          <p>Dialog content goes here.</p>
+          <!-- <p>Add Your Product</p> -->
           <!-- Include your existing code inside the dialog -->
           <VForm class="mt-6 ">
             <VRow>
@@ -193,14 +206,14 @@
               >
                 <VSelect
                  
-                  label="Brand or Manufacturer"
-                  :items="['TATA','Britania','Reliance','Arnapurna','Pepsico']"
+                  label="Products"
+                  :items="['Normal Eggs','Premium Eggs','Poori','Methi Chapathi','Ragi Chapathi']"
                 />
               </VCol>
 
 
             
-              <VCol
+              <!-- <VCol
                 cols="12"
                 md="6"
               >
@@ -230,13 +243,13 @@
                   label="PO Status"
                   :items="['Accept','Reject']"
                 />
-              </VCol>
+              </VCol> -->
               
               <VCol
                 cols="12"
                 class="d-flex flex-wrap gap-4"
               >
-                <VBtn>Save</VBtn>
+                <VBtn>Add</VBtn>
 
                 <VBtn
                   color="secondary"
@@ -265,6 +278,7 @@ export default {
   },
    data(){
     return{
+       today: new Date().toISOString().substr(0, 10), // Set today's date as the minimum date
       selectedDate: null,
       landscape: false,
       noTitle: false,
@@ -272,8 +286,9 @@ export default {
         dialog: false,
           data: [
             {
-                po: 'PO001',
+                po: '1',
                 Brand: 'Jai Fresh Eggs & Meat Products',
+                SKU: 'Normal Eggs',
                 HSN:' ',
                 MRP: '65',
                 Quantity: 0,
@@ -286,8 +301,10 @@ export default {
 
             },
              {
-                po: 'PO001',
+                po: '2',
                 Brand: 'Jai Fresh Eggs & Meat Products',
+
+                SKU: 'Premium Eggs',
                 HSN:' ',
                 MRP: '65',
                 Quantity: 0,
@@ -300,8 +317,9 @@ export default {
 
             },
              {
-                po: 'PO001',
+                po: '3',
                 Brand: 'Jai Fresh Eggs & Meat Products',
+                SKU: 'Normal Eggs',
                 HSN:' ',
                 MRP: '65',
                 Quantity: 0,
@@ -314,8 +332,10 @@ export default {
 
             },
              {
-                po: 'PO001',
+                po: '4',
                 Brand: 'Jai Fresh Eggs & Meat Products',
+
+                SKU: 'Premium Eggs',
                 HSN:' ',
                 MRP: '65',
                 Quantity: 0,
@@ -328,8 +348,9 @@ export default {
 
             },
              {
-                po: 'PO001',
+                po: '5',
                 Brand: 'Jai Fresh Eggs & Meat Products',
+                SKU: 'Premium Eggs',
                 HSN:' ',
                 MRP: '65',
                 Quantity: 0,
@@ -342,8 +363,10 @@ export default {
 
             },
             {
-                po: 'PO002',             
-                Brand: 'Ammammas easy2cook',
+                po: '1',       
+                Brand: 'Ammammas easy2cook',         
+
+                SKU: 'Poori',
                 HSN:'19059090',
                 MRP: '70',
                 Quantity: 2,
@@ -355,8 +378,10 @@ export default {
                 Ammount: '12000',
             },
              {
-                po: 'PO002',             
-                Brand: 'Ammammas easy2cook',
+                po: '2',             
+                Brand: 'Ammammas easy2cook',         
+
+                SKU: 'Methi Chapathi',
                 HSN:'19059090',
                 MRP: '70',
                 Quantity: 2,
@@ -368,8 +393,10 @@ export default {
                 Ammount: '12000',
             },
              {
-                po: 'PO002',             
-                Brand: 'Ammammas easy2cook',
+                po: '3',       
+                Brand: 'Ammammas easy2cook',         
+
+                SKU: 'Ragi Chapathi',
                 HSN:'19059090',
                 MRP: '70',
                 Quantity: 2,
@@ -381,8 +408,10 @@ export default {
                 Ammount: '12000',
             },
              {
-                po: 'PO002',             
-                Brand: 'Ammammas easy2cook',
+                po: '4',     
+                Brand: 'Ammammas easy2cook',         
+
+                SKU: 'Methi Chapathi',
                 HSN:'19059090',
                 MRP: '70',
                 Quantity: 2,
@@ -394,8 +423,9 @@ export default {
                 Ammount: '12000',
             },
              {
-                po: 'PO002',             
-                Brand: 'Ammammas easy2cook',
+                po: '5',    
+                Brand: 'Ammammas easy2cook',         
+                SKU: 'Methi Chapathi',
                 HSN:'19059090',
                 MRP: '70',
                 Quantity: 2,
@@ -407,8 +437,10 @@ export default {
                 Ammount: '12000',
             },
             {
-                po: 'PO003',
-                 Brand: 'Organic Express',
+                po: '1',
+                Brand: 'Organic Express',
+
+                 SKU: ' A2 Gir Ghee',
                 HSN:' ',
                 MRP: '1250',
                 Quantity: 5,
@@ -421,8 +453,10 @@ export default {
 
             },
             {
-                po: 'PO003',
-                 Brand: 'Organic Express',
+                po: '2',
+                Brand: 'Organic Express',
+
+                 SKU: 'Pure Honey',
                 HSN:' ',
                 MRP: '1250',
                 Quantity: 5,
@@ -435,8 +469,10 @@ export default {
 
             },
             {
-                po: 'PO003',
-                 Brand: 'Organic Express',
+                po: '3',
+                Brand: 'Organic Express',
+
+                 SKU: 'Wood Press Coconut Oil',
                 HSN:' ',
                 MRP: '1250',
                 Quantity: 5,
@@ -449,8 +485,10 @@ export default {
 
             },
             {
-                po: 'PO003',
-                 Brand: 'Organic Express',
+                po: '4',
+                Brand: 'Organic Express',
+
+                 SKU: 'Appemidi Pickle',
                 HSN:' ',
                 MRP: '1250',
                 Quantity: 5,
@@ -463,8 +501,10 @@ export default {
 
             },
             {
-                po: 'PO003',
-                 Brand: 'Organic Express',
+                po: '5',
+                Brand: 'Organic Express',
+
+                 SKU: 'Jeerige Midi Pickle',
                 HSN:' ',
                 MRP: '1250',
                 Quantity: 5,
@@ -477,8 +517,10 @@ export default {
 
             },
             {
-                po: 'PO004',
-                 Brand: 'Vijay Eggs',
+                po: '1',
+                Brand: 'Vijay Eggs',
+
+                 SKU: 'Premium Eggs',
                 HSN:' ',
                 MRP: '79',
                 Quantity: 5,
@@ -491,8 +533,10 @@ export default {
 
             },
             {
-                po: 'PO004',
-                 Brand: 'Vijay Eggs',
+                po: '2',
+                Brand: 'Vijay Eggs',
+
+                 SKU: 'Brown Eggs',
                 HSN:' ',
                 MRP: '79',
                 Quantity: 5,
@@ -505,8 +549,10 @@ export default {
 
             },
             {
-                po: 'PO004',
-                 Brand: 'Vijay Eggs',
+                po: '3',
+                Brand: 'Vijay Eggs',
+
+                 SKU: 'Brown Eggs',
                 HSN:' ',
                 MRP: '79',
                 Quantity: 5,
@@ -519,8 +565,10 @@ export default {
 
             },
             {
-                po: 'PO004',
-                 Brand: 'Vijay Eggs',
+                po: '4',
+                Brand: 'Vijay Eggs',
+
+                 SKU: 'Premium Eggs',
                 HSN:' ',
                 MRP: '79',
                 Quantity: 5,
@@ -533,8 +581,10 @@ export default {
 
             },
             {
-                po: 'PO004',
-                 Brand: 'Vijay Eggs',
+                po: '5',
+                Brand: 'Vijay Eggs',
+
+                 SKU: 'Premium Eggs',
                 HSN:' ',
                 MRP: '79',
                 Quantity: 5,
@@ -547,8 +597,10 @@ export default {
 
             },
             {
-                po: 'PO004',
-                 Brand: 'Vijay Eggs',
+                po: '6',
+                Brand: 'Vijay Eggs',
+
+                 SKU: 'Brown Eggs',
                 HSN:' ',
                 MRP: '79',
                 Quantity: 5,
@@ -561,8 +613,10 @@ export default {
 
             },
             {
-                po: 'PO005',
+                po: '1',
                 Brand: 'Roxy Roller Flour Mills (P) Ltd',
+
+                SKU: 'Nivah Sharbati Atta 1Kg',
                 HSN:' ',
                 MRP: '200',
                 Quantity: 2,
@@ -575,8 +629,10 @@ export default {
 
             },
              {
-                po: 'PO005',
+                po: '2',
                 Brand: 'Roxy Roller Flour Mills (P) Ltd',
+
+                SKU: 'Nivah Sharbati Atta 1 Kg',
                 HSN:' ',
                 MRP: '200',
                 Quantity: 2,
@@ -589,12 +645,14 @@ export default {
 
             },
                {
-                po: 'PO005',
+                po: '3',
                 Brand: 'Roxy Roller Flour Mills (P) Ltd',
+
+                SKU: 'Nivah Sharbati Atta 2 Kg',
                 HSN:' ',
                 MRP: '200',
                 Quantity: 2,
-                UOM: '1 Kg',
+                UOM: '2 Kg',
                 PriceorUnit: '1200',
                 "TaxableAmmount":'1000',
                 CGST: '3%',
@@ -603,12 +661,14 @@ export default {
 
             },
                {
-                po: 'PO005',
+                po: '4',
                 Brand: 'Roxy Roller Flour Mills (P) Ltd',
+
+                SKU: 'Nivah Sharbati Atta 5 Kg',
                 HSN:' ',
                 MRP: '200',
                 Quantity: 2,
-                UOM: '1 Kg',
+                UOM: '5 Kg',
                 PriceorUnit: '1200',
                 "TaxableAmmount":'1000',
                 CGST: '3%',
@@ -617,8 +677,9 @@ export default {
 
             },
                {
-                po: 'PO005',
+                po: '5',
                 Brand: 'Roxy Roller Flour Mills (P) Ltd',
+                SKU: 'Nivah High Quality Maida',
                 HSN:' ',
                 MRP: '200',
                 Quantity: 2,
@@ -635,16 +696,17 @@ export default {
     ],
       headers: [
         { text: 'Purchase Order', value: 'po' },
-        { text: 'Brand', value: 'Brand' },
+        { text: 'Product', value: 'SKU' },
         { text: 'HSN', value: 'HSN' },
         { text: 'MRP', value: 'MRP' },
-        { text: 'Quantity', value: 'Quantity' },
+        { text: 'Quantity', value: 'Quantity'},
         { text: 'UOM', value: 'UOM' },
         { text: 'Price/Unit', value: 'PriceorUnit' },        
         { text: 'TaxableAmmount', value: 'TaxableAmmount' },   
         { text: 'CGST', value: 'CGST' },  
         { text: 'SGST', value: 'SGST' },  
         { text: 'Ammount', value: 'Ammount' }, 
+        { text: 'Actions', value: 'action' }, 
 
 
       ],
@@ -660,16 +722,22 @@ export default {
       },
     },
    methods:{
+    //  addNewRow(item) {
+    //   // Create a new row by cloning the existing item
+    //   const newRow = { ...item, po: String(this.data.length + 1) };
+    //   // Add the new row to the data array
+    //   this.data.push(newRow);
+    // },
     onDateChange() {
       console.log('Selected date:', this.selectedDate);
     },
-    //  deleteRow(item) {
+     deleteRow(item) {
     
-    //   const index = this.data.indexOf(item);
-    //   if (index !== -1) {
-    //     this.data.splice(index, 1);
-    //   }
-    // },
+      const index = this.data.indexOf(item);
+      if (index !== -1) {
+        this.data.splice(index, 1);
+      }
+    },
 
       openproductdialog(){
     console.log('check the dialog')

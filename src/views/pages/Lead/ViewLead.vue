@@ -1,3 +1,5 @@
 <template>
-    Table will Integrate Shortly!
+   <div>
+     Table will Integrate Shortly !
+   </div>
 </template>

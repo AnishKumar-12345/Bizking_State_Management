@@ -30,7 +30,14 @@
           {{ item.calories }}
         </td>
         <td class="text-center">
-          {{ item.fat }}
+           <VChip
+        :color="resolveStatusVariant(item.fat).color"
+        class="font-weight-medium"
+        size="small"
+      >
+        {{ resolveStatusVariant(item.fat).text }}
+          <!-- {{ item.fat }} -->
+            </VChip>
         </td>
         <td class="text-center">
           {{ item.carbs }}
@@ -39,8 +46,21 @@
           {{ item.protein }}
         </td>
         <td  class="text-center ">
-            
-              <VBtn
+          {{item.actions}}
+            <!-- <VBtn
+                icon
+                variant="text"
+                color="default"
+                class="me-2"
+                size="x-small"
+            >
+              <VIcon
+              icon="bitcoin-icons:receive-filled"
+              color="success"
+              size="30"
+              />
+            </VBtn> -->
+              <!-- <VBtn
                 icon
                 variant="text"
                 color="default"
@@ -65,7 +85,7 @@
                 icon="ri-delete-bin-line"
                 size="22"
                 />
-            </VBtn>
+            </VBtn> -->
           </td>
       </tr>
       </tbody>        
@@ -80,59 +100,74 @@ export default {
      desserts: [
             {
                 dessert: 'Frozen Yogurt',
-                calories: 159,
-                fat: 6,
+                calories: '19-01-2024',
+                fat: 'Acknowledged',
                 carbs: 24,
                 protein: 4,
+                actions: 'Receive Stock'
+
             },
             {
                 dessert: 'Ice cream sandwich',
-                calories: 237,
-                fat: 6,
+                calories: '19-01-2024',
+                fat: 'Shared',
                 carbs: 24,
                 protein: 4,
+                actions: 'Receive Stock'
+
             },
             {
                 dessert: 'Eclair',
-                calories: 262,
-                fat: 6,
+                calories: '19-01-2024',
+                fat: 'Acknowledged',
                 carbs: 24,
                 protein: 4,
+                actions: 'Receive Stock'
+
             },
             {
                 dessert: 'Cupcake',
-                calories: 305,
-                fat: 6,
+                calories: '19-01-2024',
+                fat: 'Acknowledged',
                 carbs: 24,
                 protein: 4,
+                actions: 'Receive Stock'
+
             },
             {
                 dessert: 'Gingerbread',
-                calories: 356,
-                fat: 6,
+                calories: '19-01-2024',
+                fat: 'Shared',
                 carbs: 24,
                 protein: 4,
+                actions: 'Receive Stock'
+
             },
               {
                 dessert: 'Gingerbread',
-                calories: 356,
-                fat: 6,
+                calories: '19-01-2024',
+                fat: 'Shared',
                 carbs: 24,
                 protein: 4,
+                actions: 'Receive Stock'
+
             },
               {
                 dessert: 'Gingerbread',
-                calories: 356,
-                fat: 6,
+                calories: '19-01-2024',
+                fat: 'Shared',
                 carbs: 24,
                 protein: 4,
+                actions: 'Receive Stock'
+
             },
               {
                 dessert: 'Gingerbread',
-                calories: 356,
-                fat: 6,
+                calories: '19-01-2024',
+                fat: 'Acknowledged',
                 carbs: 24,
                 protein: 4,
+                actions: 'Receive Stock'
             },
     ],
       headers: [
@@ -145,6 +180,23 @@ export default {
         { text: 'Action', value: 'actions', sortable: false },
       ],
         }
+    },
+    methods:{
+      resolveStatusVariant (status){
+      if (status == 'Acknowledged')
+        return {
+          color: 'warning',
+          text: 'Acknowledged',
+        }
+     
+      
+        
+      else
+        return {
+          color: 'info',
+          text: 'Shared',
+        }
+      },
     }
 }
 </script>

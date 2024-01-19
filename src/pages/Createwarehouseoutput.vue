@@ -15,22 +15,30 @@
     >
       <!-- Account -->
       <VWindowItem value="account">
-        <Viewpurchasehistories/>
+        <Outputstock/>
       </VWindowItem>
 
-    
+      <!-- Security -->
+      <!-- <VWindowItem value="security">
+        <AccountSettingsSecurity />
+      </VWindowItem> -->
+
+      <!-- Notification -->
+      <!-- <VWindowItem value="notification">
+        <AccountSettingsNotification />
+      </VWindowItem> -->
     </VWindow>
     </div>
 </template>
 <script>
 import { useRoute } from 'vue-router'
 import { ref, onMounted } from 'vue';
-import Viewpurchasehistories from '@/views/pages/Purchase-orders/Viewpurchasehistories.vue'
+import Outputstock from '@/views/pages/Ware-house/Outputstock.vue'
 
 export default {
     components:{
-        Viewpurchasehistories,
-   
+        Outputstock,
+        // AccountSettingsNotification
     },
     data(){
         return{
@@ -38,10 +46,10 @@ export default {
             activeTab:'',
              tabs : [
                 {
-                    title: 'View Purchase History',
+                    title: 'Create Output Stock',
                     icon: 'mdi-account-outline',
                     tab: 'account',
-                },                
+                },            
 ]
         }
     },

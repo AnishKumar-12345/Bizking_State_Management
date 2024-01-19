@@ -2,7 +2,7 @@
     <div>
          <VRow>
       <VCol cols="12">
-       <VCard title="Input Stock" class="mb-4">       
+       <VCard title="Output Stock" class="mb-4">       
 
         <VCardText>
           <!-- 👉 Form -->
@@ -15,8 +15,8 @@
               >
                 <VSelect
                   v-model="selectedPurchaseOrder"
-                  label="Purchase Order"
-                  :items="['PO1', 'PO2', 'PO3','PO4','PO5']"
+                  label="Sales Order"
+                  :items="['SO1', 'SO2', 'SO3','SO4','SO5']"
                 />
                
               </VCol>
@@ -29,7 +29,7 @@
               >
                 <VTextField
                 
-                  label="Order To"
+                  label="Order From"
                
                 />
               </VCol>
@@ -50,7 +50,7 @@
               >
                 <VSelect
                  
-                  label="PO Status"
+                  label="SO Status"
                     :items="['Draft','Created','Shared','Acknowledged','Received','Close']"
                 />
               </VCol>
@@ -81,24 +81,30 @@
        <td  class="text-center">
            {{item.id}}
           </td>
-        <td class="text-center">{{ item.dessert }}</td>
+        <td class="text-center">{{ item.EQuantity }}</td>
         <td class="text-center">
-          {{ item.calories }}
+          {{ item.OQuantity }}
         </td>
         <td class="text-center">
-          <VTextField v-model="item.fat" outlined dense />
-          <!-- {{ item.fat }} -->
+          <VChip
+        :color="resolveStatusVariant(item).color"
+        class="font-weight-medium"
+        size="small"
+      >
+        {{ item.available }}
+      </VChip>
+          <!-- {{ item.available }} -->
         </td>
         <td class="text-center">
-          <VTextField v-model="item.carbs" outlined dense />
+          <VTextField v-model="item.shipped" outlined dense />
 
           <!-- {{ item.carbs }} -->
         </td>
-        <td class="text-center">
+        <!-- <td class="text-center">
           <VTextField v-model="item.protein" outlined dense />
 
-          <!-- {{ item.protein }} -->
-        </td>
+        
+        </td> -->
       </tr>
       </tbody>        
         </VTable>
@@ -139,57 +145,66 @@ export default {
      desserts: [
          {
           id:1,
-        dessert: 'Frozen Yogurt',
-        calories: 159,
-        fat: 6,
-        carbs: 24,
-        protein: 4,
-        purchaseOrder: 'PO1'
+        oid:"SO1",
+
+        // dessert: 'Frozen Yogurt',
+        EQuantity: 159,
+        OQuantity: 6,
+        available: 24,
+        shipped: 22,
+        // purchaseOrder: 'SO1'
       },
       {
         id:2,
-        dessert: 'Ice cream sandwich',
-        calories: 237,
-        fat: 6,
-        carbs: 24,
-        protein: 4,
-        purchaseOrder: 'PO2'
+        oid:"SO2",
+
+        // dessert: 'Ice cream sandwich',
+        EQuantity: 237,
+        OQuantity: 6,
+        available: 24,
+        shipped: 20,
+        // purchaseOrder: 'SO2'
       },
       {
         id:3,
-        dessert: 'Eclair',
-        calories: 262,
-        fat: 6,
-        carbs: 24,
-        protein: 4,
-        purchaseOrder: 'PO3'
+        oid:"SO3",
+
+        // dessert: 'Eclair',
+        EQuantity: 262,
+        OQuantity: 6,
+        available: 3,
+        shipped: 2,
+        // purchaseOrder: 'SO3'
       },
       {
         id:4,
-        dessert: 'Cupcake',
-        calories: 305,
-        fat: 6,
-        carbs: 24,
-        protein: 4,
-        purchaseOrder: 'PO4'
+        oid:"SO4",
+        // dessert: 'Cupcake',
+        EQuantity: 305,
+        OQuantity: 6,
+        available: 15,
+        shipped: 7,
+        // purchaseOrder: 'SO4'
       },
       {
         id:5,
-        dessert: 'Gingerbread',
-        calories: 356,
-        fat: 6,
-        carbs: 24,
-        protein: 4,
-        purchaseOrder: 'PO5'
+        oid:"SO5",
+
+        // dessert: 'Gingerbread',
+        EQuantity: 356,
+        OQuantity: 6,
+        available: 17,
+        shipped: 10,
+        // purchaseOrder: 'SO5'
       },
       ],
       headers: [
         { text: 'Product ID', value: 'id'},
-        { text: 'Product Name', value: 'dessert' },
-        { text: 'Ordered Quantity', value: 'calories' },
-        { text: 'Received Quantity', value: 'fat' },
-        { text: 'RTM', value: 'carbs' },
-        { text: 'Remarks', value: 'protein' },
+        { text: 'Exchange Quantity', value: 'EQuantity' },
+        { text: 'Ordered Quantity', value: 'OQuantity' },
+        { text: 'Available', value: 'available' },
+        { text: 'Shipped', value: 'shipped' },
+        // { text: 'Remarks', value: 'protein' },
       ],
     }
    },
@@ -199,10 +214,24 @@ export default {
       // return this.desserts; 
     }
 
-    return this.desserts.filter(item => item.purchaseOrder === this.selectedPurchaseOrder);
+    return this.desserts.filter(item => item.oid === this.selectedPurchaseOrder);
   },
 },
    methods:{
+     resolveStatusVariant (itm){
+      if (itm.available < itm.OQuantity)
+        return {
+          color: 'error',
+          // text: 'Created',
+        }   
+      
+      
+      else
+        return {
+          color: 'success',
+          // text: 'Shared',
+        }
+      },
      deleteRow(item) {
       // Implement your logic to delete the row
       const index = this.desserts.indexOf(item);

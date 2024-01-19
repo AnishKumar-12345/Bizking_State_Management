@@ -103,27 +103,37 @@ export default{
 
           ],
           expanded: false,
-        },     
+        },    
         {
           id: 9,
+          title: 'Sales  ',
+          icon: "carbon-sales-ops",
+          children: [
+            { id: 41, title: 'View Sales History', route: '/Viewsaleshistory' },           
+
+          ],
+          expanded: false,
+        },     
+        {
+          id: 10,
           title: 'Warehouse ',
           icon: "material-symbols:warehouse-outline",
           children: [
-            { id: 41, title: 'Input Stock', route: '/Createwarehouseinput' },
-            { id: 42, title: 'Output Stock', route: '/tables' },
-             { id: 43, title: 'Generate D.C', route: '/tables' },                    
-              { id: 44, title: 'Update RTV', route: '/tables' },  
+            { id: 42, title: 'Input Stock', route: '/Createwarehouseinput' },
+            { id: 43, title: 'Output Stock', route: '/Createwarehouseoutput' },
+             { id: 44, title: 'Generate D.C', route: '/tables' },                    
+              { id: 45, title: 'Update RTV', route: '/tables' },  
           ],
           expanded: false,
         },
         {
-          id: 10,
+          id: 11,
           title: 'Store Inventory',
           icon: "carbon:store",
           children: [
-            { id: 45, title: 'View Store', route: '/account-settings' },
-            { id: 46, title: 'Update Stock', route: '/tables' },
-             { id: 47, title: 'Delete Product', route: '/tables' },                    
+            { id: 46, title: 'View Store', route: '/account-settings' },
+            { id: 47, title: 'Update Stock', route: '/tables' },
+             { id: 48, title: 'Delete Product', route: '/tables' },                    
 
           ],
           expanded: false,
@@ -140,7 +150,9 @@ export default{
   },
    methods: {
     toggleChildren(parentItem) {
-      parentItem.expanded = !parentItem.expanded;   
+      parentItem.expanded = !parentItem.expanded;  
+     
+      // this.selectedChild =  parentItem.id
        this.parentItems.forEach(item => {
         if (item !== parentItem) {
           item.expanded = false;
@@ -148,8 +160,10 @@ export default{
         }
       });  
     },
-    navigateTo(route) {
+    navigateTo(route,id) {
       this.$router.push(route);
+      console.log(id)
+      this.selectedChild = id
       //  this.selectedChild = childItem.id;
     },
   },
@@ -211,11 +225,13 @@ export default{
         </v-list-item>
        
        <!-- child navs -->
-        <v-list-item-group v-if="parentItem.expanded" >
+        <v-list-item-group v-for="childItem in parentItem.children" :key="childItem.id"  v-if="parentItem.expanded"  >
       
             <v-list-item 
-            style="margin:5px"
-            v-for="childItem in parentItem.children" :key="childItem.id" @click="navigateTo(childItem.route)">
+            :style="{ backgroundColor: this.selectedChild == childItem.id ? '#edebec' : '' , color: this.selectedChild == childItem.id ? '#956D4B' : '',fontWeight: this.selectedChild == childItem.id ? 'bold' : 'normal' }"
+            style="margin:5px;border-top-right-radius: 30px;
+                border-bottom-right-radius: 30px;"
+            @click="navigateTo(childItem.route,childItem.id)">
               <v-list-item-content>
                 <v-list-item-title class="d-flex" style="font-size: 0.9rem;">
                   <v-icon v-if="parentItem.children" style="float:left;margin-right:20px;margin-top:5px;font-size:.75rem">ri-checkbox-blank-circle-line</v-icon>
