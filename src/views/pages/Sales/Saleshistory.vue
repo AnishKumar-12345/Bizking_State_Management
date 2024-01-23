@@ -1,10 +1,34 @@
 <template>
   <div>
+    <!-- <div class="search-container">
+      <label for="search">Search:</label>
+      <input
+        type="text"
+        id="search"
+        v-model="searchQuery"
+        @input="filterDesserts"
+        placeholder="Enter search query"
+      />
+    </div> -->
+    <div style="max-width:400px">
+      <VTextField
+      class="mb-3"
+        v-model="searchQuery"  
+        :loading="loading"
+        density="compact"
+        variant="solo"
+        label="Search templates"
+        append-inner-icon="mdi-magnify"
+        single-line
+        hide-details
+        @click:append-inner="onClick" 
+    />
+    </div>
 <VTable
        :headers="headers"
        :items="desserts"
         item-key="dessert"
-      class="table-rounded"      
+       class="table-rounded"      
        height="400"
       fixed-header 
       >
@@ -47,7 +71,7 @@
         <td class="text-center">
             &#8377;{{ item.ordervalue }}
         </td>
-        <td  class="text-center ">
+        <td  class="text-center" style="display: flex;align-items: center;">
           
             <!-- <VBtn
                 icon
@@ -62,7 +86,7 @@
               size="30"
               />
             </VBtn> -->
-              <VBtn
+             <VBtn
                 icon
                 variant="text"
                 color="default"
@@ -87,7 +111,7 @@
                 icon="ri-delete-bin-line"
                 size="22"
                 />
-            </VBtn>
+            </VBtn> 
           </td>
       </tr>
       </tbody>        
@@ -99,6 +123,8 @@
 export default {
     data(){
         return{
+            loaded: false,
+      loading: false,
        desserts: [
             {
                 salesorder: 'SO1',
@@ -185,6 +211,15 @@ export default {
         }
     },
     methods:{
+       onClick () {
+        this.loading = true
+
+        setTimeout(() => {
+          this.loading = false
+          this.loaded = true
+        }, 2000)
+      },
+
       resolveStatusVariant (status){
       if (status == 'Acknowledged')
         return {

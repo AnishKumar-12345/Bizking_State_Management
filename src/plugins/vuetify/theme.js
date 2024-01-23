@@ -4,7 +4,7 @@ const theme = {
     light: {
       dark: false,
       colors: {
-        'primary': '#956D4B',
+        'primary': '#BA8B32',
         'secondary': '#8A8D93',
         'on-secondary': '#fff',
         'success': '#56CA00',
@@ -41,7 +41,7 @@ const theme = {
     dark: {
       dark: true,
       colors: {
-        'primary': '#956D4B',
+        'primary': '#BA8B32',
         'secondary': '#8A8D93',
         'on-secondary': '#fff',
         'success': '#56CA00',

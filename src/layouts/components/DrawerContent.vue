@@ -208,7 +208,7 @@ export default{
           style="margin:8px; border-top-right-radius: 30px;
                 border-bottom-right-radius: 30px;width:95%;"
          :to="parentItem.route"
-         :style="{ backgroundColor: parentItem.expanded ? '#956D4B' : '' , color: parentItem.expanded ? '#ffffff' : '' }"
+         :style="{ backgroundColor: parentItem.expanded ? '#BA8B32' : '' , color: parentItem.expanded ? '#ffffff' : '' }"
          @click="toggleChildren(parentItem)">
           <v-list-item-icon style="gap: 0.5rem;">
             <v-icon style="display:flex;float:left;margin-right:0.5rem;">{{ parentItem.icon || 'mdi-folder' }}</v-icon>
@@ -228,7 +228,7 @@ export default{
         <v-list-item-group v-for="childItem in parentItem.children" :key="childItem.id"  v-if="parentItem.expanded"  >
       
             <v-list-item 
-            :style="{ backgroundColor: this.selectedChild == childItem.id ? '#edebec' : '' , color: this.selectedChild == childItem.id ? '#956D4B' : '',fontWeight: this.selectedChild == childItem.id ? 'bold' : 'normal' }"
+            :style="{ backgroundColor: this.selectedChild == childItem.id ? '#edebec' : '' , color: this.selectedChild == childItem.id ? '#BA8B32' : '',fontWeight: this.selectedChild == childItem.id ? 'bold' : 'normal' }"
             style="margin:5px;border-top-right-radius: 30px;
                 border-bottom-right-radius: 30px;"
             @click="navigateTo(childItem.route,childItem.id)">

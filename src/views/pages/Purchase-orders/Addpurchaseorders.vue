@@ -4,19 +4,24 @@
       <VCol cols="12">
        <VCard title="Purchase Order" class="mb-4">       
 
+       
         <VCardText>
+          
           <!-- 👉 Form -->
           <VForm class="mt-6 ">
+           
             <VRow>
     
               <VCol
                 md="6"
                 cols="12"
               >
+              {{selectedPurchaseOrder}}
                 <VSelect
-                     v-model="selectedPurchaseOrder"
+                  v-model="selectedPurchaseOrder"
                   label="Brand or Manufacturer"
-                  :items="['Jai Fresh Eggs & Meat Products','Ammammas easy2cook','Organic Express','Vijay Eggs','Roxy Roller Flour Mills (P) Ltd']"
+                  :items="brandNames"               
+                  @update:model-value="handleBrandSelection"
                 />
               </VCol>
 
@@ -69,7 +74,7 @@
                       <VIcon
                         icon="mdi-plus-box"
                         size="30"        
-                        color="#956D4B"       
+                        color="#BA8B32"       
                         />   
                       </V-btn>     
               <VCol cols="12">
@@ -155,7 +160,82 @@
           </td>
       
       </tr>
-      </tbody>        
+      </tbody>
+      <tfoot>
+          <tr>
+            <td class="text-center">Total</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="text-center"> &#8377;{{ totals.Quantity }}</td>
+            <td></td>
+            <td></td>
+            <td class="text-center"> &#8377;{{ totals.TaxableAmmount }}</td>
+            <td class="text-center"> &#8377;{{ totals.CGST }}</td>
+            <td class="text-center"> &#8377;{{ totals.SGST }}</td>
+            <td class="text-center"> &#8377;{{ totals.Ammount }}</td>   
+            <td></td> 
+          </tr>
+         <tr>
+          <!-- Left Side: CGST -->
+          <td class="text-left">Tax Details</td>
+          <td colspan="4" class="text-right">{{ totals.tax }}</td>
+          
+          <!-- Right Side: Subtotal -->
+          <td colspan="4" class="text-left">Ammounts:</td> <!-- Empty cells for merging -->
+          <td colspan="4" class="text-center"></td>
+        </tr>
+
+         <tr>
+          <!-- Left Side: CGST -->
+          <td class="text-left">CGST</td>
+          <td colspan="4" class="text-right">&#8377;{{ totals.CGST }}</td>
+          
+          <!-- Right Side: Subtotal -->
+          <td colspan="4" class="text-left">SubTotal</td> <!-- Empty cells for merging -->
+          <td colspan="4" class="text-center">&#8377;{{ totals.Ammount }}</td>
+        </tr>
+
+         <tr>
+          <!-- Left Side: CGST -->
+          <td class="text-left">SGST</td>
+          <td colspan="4" class="text-right">&#8377;{{ totals.CGST }}</td>
+          
+          <!-- Right Side: Subtotal -->
+          <td colspan="4" class="text-left">Total</td> <!-- Empty cells for merging -->
+          <td colspan="4" class="text-center">&#8377;{{ totals.Ammount }}</td>
+        </tr>
+
+         <tr>
+          <!-- Left Side: CGST -->
+          <td class="text-left"></td>
+          <td  colspan="4" class="text-right"></td>
+          
+          <!-- Right Side: Subtotal -->
+          <td colspan="4" class="text-left">Advance</td> <!-- Empty cells for merging -->
+          <td colspan="4" class="text-center">&#8377;{{ totals.Quantity }}</td>
+        </tr>
+
+         <tr>
+          <!-- Left Side: CGST -->
+          <td class="text-left"></td>
+          <td colspan="4" class="text-right"></td>
+          
+          <!-- Right Side: Subtotal -->
+          <td  colspan="4" class="text-left">Balance</td> <!-- Empty cells for merging -->
+          <td colspan="4" class="text-center">&#8377;{{ totals.Ammount }}</td>
+        </tr>
+
+        <tr>
+          <!-- Left Side: CGST -->
+          <td class="text-left"></td>
+          <td colspan="4" class="text-right"></td>
+          
+          <!-- Right Side: Subtotal -->
+          <td colspan="4" class="text-left">You Saved</td> <!-- Empty cells for merging -->
+          <td colspan="4" class="text-center">&#8377;{{ totals.Ammount }}</td>
+        </tr>
+  </tfoot>        
         </VTable>
               </VCol>
 
@@ -272,18 +352,30 @@
 </template>
 <script>
 // import { VDatePicker } from 'vuetify/lib/components/VDatePicker';
+import servicescall from "@/Services";
 export default {
+  mixins: [servicescall],
   components:{
     // VDatePicker,
   },
    data(){
     return{
+          Brandname:[],
+          totals: {
+          Quantity: 0,
+          TaxableAmmount: 0,
+          CGST: 0,
+          SGST: 0,
+          Ammount: 0,
+        },
+
        today: new Date().toISOString().substr(0, 10), // Set today's date as the minimum date
       selectedDate: null,
       landscape: false,
       noTitle: false,
         selectedPurchaseOrder: null,
         dialog: false,
+
           data: [
             {
                 po: '1',
@@ -694,6 +786,7 @@ export default {
             
               
     ],
+
       headers: [
         { text: 'Purchase Order', value: 'po' },
         { text: 'Product', value: 'SKU' },
@@ -710,18 +803,69 @@ export default {
 
 
       ],
+
     }
    },
      computed: {
-      filteredDesserts() {
-        if (!this.selectedPurchaseOrder) {
-          // return this.desserts; 
-        }
+      // filteredDesserts() {
+      //   if (!this.selectedPurchaseOrder) {
+      //     // return this.desserts; 
+      //   }
 
-        return this.data.filter(item => item.Brand === this.selectedPurchaseOrder);
-      },
+      //   for (const key in this.totals) {
+      //     this.totals[key] = 0;
+      //   }
+
+      //   const filteredData = this.data.filter(item => item.Brand === this.selectedPurchaseOrder);
+
+
+      //   filteredData.forEach(item => {
+      //         for (const key in this.totals) {
+      //           this.totals[key] += parseFloat(item[key]) || 0;
+      //         }
+      //       });
+
+            
+      //   return this.data.filter(item => item.Brand === this.selectedPurchaseOrder);
+
+      //   // return filteredData;
+
+        
+      // },
+      brandNames() {
+      return this.Brandname.map((brand) => brand.brand_name);
     },
+    },
+    mounted(){
+      this.getBrandsdata();
+    },
+    
    methods:{
+    handleBrandSelection() {
+      console.log('Brand changed:', this.selectedPurchaseOrder);
+      const selectedBrand = this.Brandname.find(
+        (brand) => brand.brand_name === this.selectedPurchaseOrder
+      );
+        console.log("Select",selectedBrand);
+
+      if (selectedBrand) {
+        this.selectedBrandId = selectedBrand.brand_id;
+
+        this.getBrandproducts(this.selectedBrandId).then((response)=>{
+                  console.log("BrandID",response);
+        })
+        // Call your API method to get brand details using this.selectedBrandId
+        // this.getBrandDetails();
+      }
+    },
+    getBrandsdata(){
+      this.getBrands().then((response)=>{
+        
+        // this.Brandname = response.data.map(e => e.brand_name)
+        this.Brandname = response.data;
+        console.log('check the response', this.Brandname);
+      })
+    },
     //  addNewRow(item) {
     //   // Create a new row by cloning the existing item
     //   const newRow = { ...item, po: String(this.data.length + 1) };
