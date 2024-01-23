@@ -1,5 +1,5 @@
 <script setup>
-import DrawerContent from './DrawerContent.vue'
+import DrawerContent from './DrawerContent.vue' 
 import { VerticalNavLayout } from '@layouts'
 
 // Components

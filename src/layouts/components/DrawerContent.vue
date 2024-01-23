@@ -242,7 +242,7 @@ export default{
           </v-list-item-group>     
 
       </v-list-item-group>
-    </VerticalNavLink>
+    </VerticalNavLink> 
     <!-- </v-container> -->
   <!-- </v-navigation-drawer> -->
    
