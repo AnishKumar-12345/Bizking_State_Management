@@ -4,15 +4,15 @@
 // import logo from '@/assets/images/logos/aws.png'
 import { VerticalNavLink, VerticalNavSectionTitle } from '@layouts'
 import { useTheme } from 'vuetify'
-import Index from '@/pages/index.vue'
+// import Index from '@/pages/index.vue'
 // import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
 
 export default{
   name: "DrawerContent",
- components:{
- Index,
+//  components:{
+//  Index,
 
- },
+//  },
  
   data(){
     return{
@@ -75,8 +75,8 @@ export default{
           icon: "mdi-person-group-outline",
           children: [
             { id: 33, title: 'Onboard Merchant', route: '/account-settings' },
-            { id: 34, title: 'Update Merchant ', route: '/tables' },
-             { id: 35, title: 'Update Merchant ', route: '/tables' },                    
+            { id: 34, title: 'Update Merchant Details', route: '/tables' },
+             { id: 35, title: 'Update Merchant Service', route: '/tables' },                    
 
           ],
           expanded: false,
@@ -182,7 +182,7 @@ export default{
       <img src="@/assets/images/logos/comlogo.jpeg" height="60" width="60" style="padding:5px;">
 
       <Transition name="vertical-nav-app-title">
-        <h1 class="font-weight-semibold leading-normal text-xl text-uppercase">BIZKINGZ
+        <h1 class="font-weight-semibold leading-normal text-xl text-uppercase">BIZKINGZ 
          <!-- <span>WE LAUNCH YOUR SUCCESS</span> -->
         </h1>
       </Transition>

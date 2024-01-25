@@ -31,15 +31,14 @@ const loginuser = () => {
     password: form.value.password
     // remember: form.remember,
   };
-   axios.post('http://103.211.218.32/bizkingz/services/api/auth/login', requestData)
+   axios.post('https://mangoreports.in/bizkingz/services/api/auth/login', requestData)
     .then(response => {
       // Handle the response data here
       console.log('API Response:', response);
       // You can update the state or perform other actions based on the response
       if (response.data.message == "Login Successfully") {
         // Navigate to another component using the router instance
-        router.push('/'); // Replace 'YourComponentName' with the actual name of your component
-        localStorage.setItem("createdby",response.data.data.name);
+        router.push('/default'); // Replace 'YourComponentName' with the actual name of your component
       }
     })
     .catch(error => {

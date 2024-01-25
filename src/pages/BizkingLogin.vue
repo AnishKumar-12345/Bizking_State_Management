@@ -1,58 +1,9 @@
-<script setup>
-import { useTheme } from 'vuetify'
-import logo from '@/assets/images/logos/comlogo.jpeg'
-import AuthProvider from '@/views/pages/authentication/AuthProvider.vue'
-import authV1MaskDark from '@/assets/images/pages/auth-v1-mask-dark.png'
-import authV1MaskLight from '@/assets/images/pages/auth-v1-mask-light.png'
-import authV1Tree2 from '@/assets/images/pages/auth-v1-tree-2.png'
-import authV1Tree from '@/assets/images/pages/auth-v1-tree.png'
-import { ref, computed } from 'vue'
-import axios from 'axios'
-import { useRouter } from 'vue-router'
 
-const router = useRouter();
-const form = ref({ 
-  email: '',
-  password: '',
-  remember: false,
-})
-const vuetifyTheme = useTheme()
-const authThemeMask = computed(() => {
-  return vuetifyTheme.global.name.value === 'light' ? authV1MaskLight : authV1MaskDark
-})
-const isPasswordVisible = ref(false)
 
-const loginuser = () => {
-  // Add your logic here to handle form submission
-  // console.log('Form submitted with data:', form.value)
-  // You can use form.value to access the form data
-   const requestData = {
-    email: form.value.email,
-    password: form.value.password
-    // remember: form.remember,
-  };
-   axios.post('http://103.211.218.32/bizkingz/services/api/auth/login', requestData)
-    .then(response => {
-      // Handle the response data here
-      console.log('API Response:', response);
-      // You can update the state or perform other actions based on the response
-      if (response.data.message == "Login Successfully") {
-        // Navigate to another component using the router instance
-        router.push('/'); // Replace 'YourComponentName' with the actual name of your component
-        localStorage.setItem("createdby",response.data.data.name);
-      }
-    })
-    .catch(error => {
-      // Handle errors here
-      console.error('API Error:', error);
-      // You can display an error message or take appropriate actions
-    });
-}
 
-</script>
 
 <template>
-  <div class="auth-wrapper d-flex align-center justify-center pa-4">
+   <div class="auth-wrapper d-flex align-center justify-center pa-4">
     <VCard
       class="auth-card pa-4 pt-7"
       max-width="448"
@@ -77,10 +28,9 @@ const loginuser = () => {
           Please sign-in to your account and start the adventure
         </p>
       </VCardText>
-
+<!-- @submit.prevent="() => {}" -->
       <VCardText>
-        <!-- () => {} -->
-        <VForm @submit.prevent="loginuser">
+        <VForm @submit.prevent="clickfornext">
           <VRow>
             <!-- email -->
             <VCol cols="12">
@@ -99,7 +49,6 @@ const loginuser = () => {
                 :type="isPasswordVisible ? 'text' : 'password'"
                 :append-inner-icon="isPasswordVisible ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"
                 @click:append-inner="isPasswordVisible = !isPasswordVisible"
-                
               />
 
               <!-- remember me checkbox -->
@@ -183,11 +132,59 @@ const loginuser = () => {
   </div>
 </template>
 
+<script>
+import { ref, computed } from 'vue'
+import { useTheme } from 'vuetify'
+import logo from '@/assets/images/logos/comlogo.jpeg'
+import AuthProvider from '@/views/pages/authentication/AuthProvider.vue'
+import authV1MaskDark from '@/assets/images/pages/auth-v1-mask-dark.png'
+import authV1MaskLight from '@/assets/images/pages/auth-v1-mask-light.png'
+import authV1Tree2 from '@/assets/images/pages/auth-v1-tree-2.png'
+import authV1Tree from '@/assets/images/pages/auth-v1-tree.png'
+export default {
+  components:{
+   logo,
+   AuthProvider,
+   authV1Tree2,
+   authV1Tree
+  },
+  data() {
+    return {
+      // If you have any additional data properties, you can define them here.
+    };
+  },
+  methods:{
+    clickfornext(){
+      // router.push({ to: './components/DefaultLayoutWithVerticalNav.vue' })
+       this.$router.push({ name: "Home" });
+    },
+  },
+
+  setup() {
+    const form = ref({
+      email: '',
+      password: '',
+      remember: false,
+    })
+
+    const vuetifyTheme = useTheme()
+
+    const authThemeMask = computed(() => {
+      return vuetifyTheme.global.name.value === 'light' ? authV1MaskLight : authV1MaskDark
+    })
+
+    const isPasswordVisible = ref(false)
+
+    return {
+      form,
+      vuetifyTheme,
+      authThemeMask,
+      isPasswordVisible,
+    }
+  },
+}
+</script>
+
 <style lang="scss">
 @use "@core/scss/pages/page-auth.scss";
 </style>
-
-<route lang="yaml">
-meta:
-  layout: blank
-</route>

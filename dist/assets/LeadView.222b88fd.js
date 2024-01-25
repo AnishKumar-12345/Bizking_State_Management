@@ -1,0 +1,1 @@
+import{a9 as e,o as n,q as o,a as r,r as s}from"./index.b1fbed7e.js";const l={};function _(t,c){return n(),o("div",null," Table will Integrate Shortly ! ")}const d=e(l,[["render",_]]),i={components:{Viewlead:d}};function p(t,c,f,m,u,$){const a=s("Viewlead");return n(),o("div",null,[r(a)])}const V=e(i,[["render",p]]);export{V as default};

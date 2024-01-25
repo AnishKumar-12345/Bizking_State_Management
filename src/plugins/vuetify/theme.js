@@ -11,12 +11,12 @@ const theme = {
         'info': '#16B1FF',
         'warning': '#FFB400',
         'error': '#FF4C51',
-        'on-primary': '#FFFFFF',
+        'on-primary': '#FFFFFF', 
         'on-success': '#FFFFFF',
         'on-warning': '#FFFFFF',
         'background': '#F4F5FA',
-        'on-background': '#3A3541',
-        'on-surface': '#3A3541',
+        'on-background': '#000000',
+        'on-surface': '#000000',
         'grey-50': '#FAFAFA',
         'grey-100': '#F5F5F5',
         'grey-200': '#EEEEEE',
@@ -29,8 +29,8 @@ const theme = {
         'grey-900': '#212121',
       },
       variables: {
-        'border-color': '#3A3541',
-        'medium-emphasis-opacity': 0.68,
+        'border-color': '#000000',
+        'medium-emphasis-opacity': 0.90,
 
         // Shadows
         'shadow-key-umbra-opacity': 'rgba(var(--v-theme-on-surface), 0.08)',
