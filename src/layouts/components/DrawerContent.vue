@@ -21,7 +21,7 @@ export default{
         {
           id: 1,
           title: 'Dashboard',
-          route: '/',
+          route: '/Dashboardhome',
           expanded: false,
           icon: "ri-home-smile-line"
         },

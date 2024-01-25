@@ -16,6 +16,8 @@ const form = ref({
   password: '',
   remember: false,
 })
+
+
 const vuetifyTheme = useTheme()
 const authThemeMask = computed(() => {
   return vuetifyTheme.global.name.value === 'light' ? authV1MaskLight : authV1MaskDark
@@ -26,11 +28,12 @@ const loginuser = () => {
   // Add your logic here to handle form submission
   // console.log('Form submitted with data:', form.value)
   // You can use form.value to access the form data
-   const requestData = {
-    email: form.value.email,
-    password: form.value.password
-    // remember: form.remember,
-  };
+  //  if (validateForm()) {
+    const requestData = {
+      email: form.value.email,
+      password: form.value.password
+    };
+  //  }
    axios.post('http://103.211.218.32/bizkingz/services/api/auth/login', requestData)
     .then(response => {
       // Handle the response data here
@@ -38,7 +41,7 @@ const loginuser = () => {
       // You can update the state or perform other actions based on the response
       if (response.data.message == "Login Successfully") {
         // Navigate to another component using the router instance
-        router.push('/'); // Replace 'YourComponentName' with the actual name of your component
+        router.push('/Dashboardhome'); // Replace 'YourComponentName' with the actual name of your component
         localStorage.setItem("createdby",response.data.data.name);
       }
     })
@@ -88,6 +91,7 @@ const loginuser = () => {
                 v-model="form.email"
                 label="Email"
                 type="email"
+              
               />
             </VCol>
 
@@ -99,11 +103,12 @@ const loginuser = () => {
                 :type="isPasswordVisible ? 'text' : 'password'"
                 :append-inner-icon="isPasswordVisible ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"
                 @click:append-inner="isPasswordVisible = !isPasswordVisible"
+               
                 
               />
-
+              <!-- <span v-if="!isPasswordValid" class="error-message">Password must be at least 6 characters</span> -->
               <!-- remember me checkbox -->
-              <div class="d-flex align-center justify-space-between flex-wrap mt-1 mb-4">
+              <!-- <div class="d-flex align-center justify-space-between flex-wrap mt-1 mb-4">
                 <VCheckbox
                   v-model="form.remember"
                   label="Remember me"
@@ -115,10 +120,11 @@ const loginuser = () => {
                 >
                   Forgot Password?
                 </a>
-              </div>
+              </div> -->
 
               <!-- login button -->
                <!-- to="/" -->
+               <br><br>
               <VBtn
                 block
                 type="submit"
@@ -129,7 +135,7 @@ const loginuser = () => {
             </VCol>
 
             <!-- create account -->
-            <VCol
+            <!-- <VCol
               cols="12"
               class="text-center text-base"
             >
@@ -140,7 +146,7 @@ const loginuser = () => {
               >
                 Create an account
               </RouterLink>
-            </VCol>
+            </VCol> -->
 
             <!-- <VCol
               cols="12"
