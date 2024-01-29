@@ -33,5 +33,22 @@ export default {
             return response.data;
           });
         },
+        postPurchaseorder(reqbody){
+          return axios
+          .post(this.url +"bizkingz/services/api/purchase/createOrder",reqbody, {
+            // withCredentials: true,
+            headers: {
+              "Content-Type": "application/json",
+         
+            }
+          })
+          .then(response => {
+            return response.data;
+          })
+          .catch(err => {
+            console.log('check tick',err);
+            return err.response;
+          });
+        },
     }
 }

@@ -34,7 +34,7 @@
                 <VTextField
                   v-model="createdBy"
                   label="Created By"
-               
+                  readonly
                 />
               </VCol>
       
@@ -42,11 +42,13 @@
                 cols="12"
                 md="6"
               >
-              
+              <!-- {{formData.created_date}} -->
                 <VTextField
+                  v-model="formData.created_date"
                   type="date"
                   label="Date"
                   :min="today"
+                
                 />
               </VCol>
             
@@ -54,8 +56,9 @@
                 md="6"
                 cols="12"
               >
+              <!-- {{formData.po_status}}  -->
                 <VSelect
-                 
+                  v-model="formData.po_status"
                   label="PO Status"
                   :items="['Draft','Created','Shared','Acknowledged','Received','Close']"
                 />
@@ -113,29 +116,55 @@
           &#8377;{{ item.mrp }}
         </td>
         <td class="text-center">
-          <VTextField  v-model="item.quantity" type="number" style="min-width:80px;"/>
+          <VTextField  @keydown="preventDecimal"    
+          step="1"  type="number" v-model="item.quantity" style="min-width:80px;"/>
           <!-- {{ item.Quantity }} -->
         </td>
          <td class="text-center">
           {{ item.uom }}
         </td>
         <td class="text-center">
-         &#8377; {{calculatedPricePerUnit[index]}} <br> mar:{{item.total_given_margin}}
-          <!-- &#8377;{{ item.PriceorUnit }} -->
+         &#8377; {{calculatedPricePerUnit[index]}} <br>
+          <!-- &#8377;{{ item.total_given_margin }} -->
+           <VChip
+        :color="colorTGMmargin(item.total_given_margin).color"
+        class="font-weight-medium"
+        size="small"
+      >
+        ({{ item.total_given_margin }})
+          <!-- {{ item.fat }} -->
+            </VChip>
         </td>
         <td class="text-center">
           &#8377;{{ calculatedTaxableAmount[index]}}
         </td>
         <td class="text-center">
-          &#8377;{{ calculatedCGSTAmount[index]}} <br/> mar:{{item.cgst}}
-          <!-- {{ item.cgst }} -->
+          &#8377;{{ calculatedCGSTAmount[index]}} <br/> 
+          <!-- {{ item.cgst }} -->         
+        <VChip
+        :color="colorCGSTmargin(item.cgst).color"
+        class="font-weight-medium"
+        size="small"
+      >
+        ({{ item.cgst }})
+          <!-- {{ item.fat }} -->
+            </VChip>
         </td>
         <td class="text-center">
-           &#8377;{{ calculatedSGSTAmount[index]}} <br/> mar:{{item.sgst}}
+           &#8377;{{ calculatedSGSTAmount[index]}} <br/> 
           <!-- {{ item.sgst }} -->
+           <VChip
+        :color="colorSGSTmargin(item.sgst).color"
+        class="font-weight-medium"
+        size="small"
+      >
+        ({{ item.sgst }})
+          <!-- {{ item.fat }} -->
+            </VChip>
         </td>
         <td class="text-center">
           &#8377;{{ calculateTotalamount[index] }}
+          
         </td>      
           <td >
                 <VBtn
@@ -170,7 +199,7 @@
             <td class="text-center">Total</td>
             <td></td>
             <td></td>         
-            <td class="text-center"> &#8377;{{ allQuantity }}</td>
+            <td class="text-center"> {{ allQuantity }}</td>
             <td></td>    
             <td></td>         
             <td class="text-center"> &#8377;{{ allTaxableAmmount }}</td>
@@ -181,11 +210,11 @@
           </tr>
          <tr>
           <!-- Left Side: CGST -->
-          <td class="text-left">Tax Details</td>
-          <td colspan="4" class="text-right">{{ totals.tax }}</td>
+          <td class="text-left" color="success">Tax Details</td>
+          <td colspan="4" class="text-right"></td>
           
           <!-- Right Side: Subtotal -->
-          <td colspan="4" class="text-left">Ammounts:</td> <!-- Empty cells for merging -->
+          <td colspan="4" class="text-left">Amounts:</td> <!-- Empty cells for merging -->
           <td colspan="4" class="text-center"></td>
         </tr>
 
@@ -246,7 +275,7 @@
                 cols="12"
                 class="d-flex flex-wrap gap-4"
               >
-                <VBtn>Save</VBtn>
+                <VBtn @click="saveData">Save</VBtn>
 
                 <VBtn
                   color="secondary"
@@ -265,14 +294,14 @@
     </VCol>  
   </VRow>
 
+     <VSnackbar
+      v-model="snackbar" :timeout="4000"
+      :color="color"
       
- <!-- class="mb-4 mt-4" -->
-    <!-- <v-container fluid> -->
-    <!-- item-key="fullName"
-        class="table-rounded"
-        hide-default-footer
-        disable-sort -->
-
+    >
+      {{ snackbarText }}
+     <!-- <VBtn text @click="snackbar = false">Close</VBtn> -->
+    </VSnackbar> 
 
  <VDialog v-model="dialog" max-width="600">
       <VCard title="Add Your Product">
@@ -296,37 +325,7 @@
 
 
             
-              <!-- <VCol
-                cols="12"
-                md="6"
-              >
-                <VTextField
-                
-                  label="Created By"
-               
-                />
-              </VCol>
-      
-              <VCol
-                cols="12"
-                md="6"
-              >
-                <VTextField
-                
-                  label="Date"
-                />
-              </VCol>
             
-            <VCol
-                md="6"
-                cols="12"
-              >
-                <VSelect
-                 
-                  label="PO Status"
-                  :items="['Accept','Reject']"
-                />
-              </VCol> -->
               
               <VCol
                 cols="12"
@@ -354,20 +353,57 @@
     </div>
 </template>
 <script>
-// import { VDatePicker } from 'vuetify/lib/components/VDatePicker';
+
 import servicescall from "@/Services";
 
 export default {
   mixins: [servicescall],
   components:{
-    // VDatePicker,
+
   },
    data(){
     return{
-    
+       snackbar: false,
+       snackbarText: '',
+      timeout: 6000, // milliseconds
+      color: '', // or 'error', 'warning', 'info', etc.
+      top: false,
+      bottom: true,
+      left: false,
+      right: false,
+
+      formData: {
+            brand_id: "",
+            user_id: "",
+            created_date: "",
+            po_status: "",
+            total_cgst: "",
+            total_sgst: "",
+            you_saved: "",
+            'sub_total(taxable_amount_total)': "", // Rename the property as per your API
+            total_so_amount: "",
+            products: [
+                {
+                    brand_product_id: "",
+                    sku_name: "",
+                    hsn_code: "",
+                    mrp: "",
+                    quantity: "",
+                    uom: "",
+                    price_per_unit: "",
+                    taxable_amount: "",
+                    cgst: "",
+                    sgst: "",
+                    amount: "",
+                    total_give_margin: ""
+                },
+                // ... additional products
+            ]
+        },
       quantityInput:0,
       AllBrandproducts:[],
       createdBy:'',
+      userIds:'',
       Brandname:[],
       totals: {
           Quantity: 0,
@@ -377,424 +413,14 @@ export default {
           Ammount: 0,
         },
 
-       today: new Date().toISOString().substr(0, 10), // Set today's date as the minimum date
-      selectedDate: null,
+       today: new Date().toISOString().substr(0, 10), 
+      // selectedDate: new Date().toISOString().substr(0, 10),
       landscape: false,
       noTitle: false,
         selectedPurchaseOrder: null,
         dialog: false,
 
-    //       data: [
-    //         {
-    //             po: '1',
-    //             Brand: 'Jai Fresh Eggs & Meat Products',
-    //             SKU: 'Normal Eggs',
-    //             HSN:' ',
-    //             MRP: '65',
-    //             Quantity: 0,
-    //             UOM: 'Pack of 6',
-    //             PriceorUnit: '1428',
-    //             TaxableAmmount:'1200',
-    //             CGST: '3%',
-    //             SGST: '2%',
-    //             Ammount: '12000',
-
-    //         },
-    //          {
-    //             po: '2',
-    //             Brand: 'Jai Fresh Eggs & Meat Products',
-
-    //             SKU: 'Premium Eggs',
-    //             HSN:' ',
-    //             MRP: '65',
-    //             Quantity: 0,
-    //             UOM: 'Pack of 6',
-    //             PriceorUnit: '1428',
-    //             TaxableAmmount:'1200',
-    //             CGST: '3%',
-    //             SGST: '2%',
-    //             Ammount: '12000',
-
-    //         },
-    //          {
-    //             po: '3',
-    //             Brand: 'Jai Fresh Eggs & Meat Products',
-    //             SKU: 'Normal Eggs',
-    //             HSN:' ',
-    //             MRP: '65',
-    //             Quantity: 0,
-    //             UOM: 'Pack of 6',
-    //             PriceorUnit: '1428',
-    //             TaxableAmmount:'1200',
-    //             CGST: '3%',
-    //             SGST: '2%',
-    //             Ammount: '12000',
-
-    //         },
-    //          {
-    //             po: '4',
-    //             Brand: 'Jai Fresh Eggs & Meat Products',
-
-    //             SKU: 'Premium Eggs',
-    //             HSN:' ',
-    //             MRP: '65',
-    //             Quantity: 0,
-    //             UOM: 'Pack of 6',
-    //             PriceorUnit: '1428',
-    //             TaxableAmmount:'1200',
-    //             CGST: '3%',
-    //             SGST: '2%',
-    //             Ammount: '12000',
-
-    //         },
-    //          {
-    //             po: '5',
-    //             Brand: 'Jai Fresh Eggs & Meat Products',
-    //             SKU: 'Premium Eggs',
-    //             HSN:' ',
-    //             MRP: '65',
-    //             Quantity: 0,
-    //             UOM: 'Pack of 6',
-    //             PriceorUnit: '1428',
-    //             TaxableAmmount:'1200',
-    //             CGST: '3%',
-    //             SGST: '2%',
-    //             Ammount: '12000',
-
-    //         },
-    //         {
-    //             po: '1',       
-    //             Brand: 'Ammammas easy2cook',         
-
-    //             SKU: 'Poori',
-    //             HSN:'19059090',
-    //             MRP: '70',
-    //             Quantity: 2,
-    //             UOM: '10 Pcs',
-    //             PriceorUnit: '1428',
-    //             "TaxableAmmount":'1200',
-    //             CGST: '3%',
-    //             SGST: '2%',
-    //             Ammount: '12000',
-    //         },
-    //          {
-    //             po: '2',             
-    //             Brand: 'Ammammas easy2cook',         
-
-    //             SKU: 'Methi Chapathi',
-    //             HSN:'19059090',
-    //             MRP: '70',
-    //             Quantity: 2,
-    //             UOM: '10 Pcs',
-    //             PriceorUnit: '1428',
-    //             "TaxableAmmount":'1200',
-    //             CGST: '3%',
-    //             SGST: '2%',
-    //             Ammount: '12000',
-    //         },
-    //          {
-    //             po: '3',       
-    //             Brand: 'Ammammas easy2cook',         
-
-    //             SKU: 'Ragi Chapathi',
-    //             HSN:'19059090',
-    //             MRP: '70',
-    //             Quantity: 2,
-    //             UOM: '10 Pcs',
-    //             PriceorUnit: '1428',
-    //             "TaxableAmmount":'1200',
-    //             CGST: '3%',
-    //             SGST: '2%',
-    //             Ammount: '12000',
-    //         },
-    //          {
-    //             po: '4',     
-    //             Brand: 'Ammammas easy2cook',         
-
-    //             SKU: 'Methi Chapathi',
-    //             HSN:'19059090',
-    //             MRP: '70',
-    //             Quantity: 2,
-    //             UOM: '10 Pcs',
-    //             PriceorUnit: '1428',
-    //             "TaxableAmmount":'1200',
-    //             CGST: '3%',
-    //             SGST: '2%',
-    //             Ammount: '12000',
-    //         },
-    //          {
-    //             po: '5',    
-    //             Brand: 'Ammammas easy2cook',         
-    //             SKU: 'Methi Chapathi',
-    //             HSN:'19059090',
-    //             MRP: '70',
-    //             Quantity: 2,
-    //             UOM: '10 Pcs',
-    //             PriceorUnit: '1428',
-    //             "TaxableAmmount":'1200',
-    //             CGST: '3%',
-    //             SGST: '2%',
-    //             Ammount: '12000',
-    //         },
-    //         {
-    //             po: '1',
-    //             Brand: 'Organic Express',
-
-    //              SKU: ' A2 Gir Ghee',
-    //             HSN:' ',
-    //             MRP: '1250',
-    //             Quantity: 5,
-    //             UOM: '500 ml',
-    //             PriceorUnit: '1200',
-    //             "TaxableAmmount":'1000',
-    //             CGST: '3%',
-    //             SGST: '2%',
-    //             Ammount: '10000',
-
-    //         },
-    //         {
-    //             po: '2',
-    //             Brand: 'Organic Express',
-
-    //              SKU: 'Pure Honey',
-    //             HSN:' ',
-    //             MRP: '1250',
-    //             Quantity: 5,
-    //             UOM: '500 ml',
-    //             PriceorUnit: '1200',
-    //             "TaxableAmmount":'1000',
-    //             CGST: '3%',
-    //             SGST: '2%',
-    //             Ammount: '10000',
-
-    //         },
-    //         {
-    //             po: '3',
-    //             Brand: 'Organic Express',
-
-    //              SKU: 'Wood Press Coconut Oil',
-    //             HSN:' ',
-    //             MRP: '1250',
-    //             Quantity: 5,
-    //             UOM: '500 ml',
-    //             PriceorUnit: '1200',
-    //             "TaxableAmmount":'1000',
-    //             CGST: '3%',
-    //             SGST: '2%',
-    //             Ammount: '10000',
-
-    //         },
-    //         {
-    //             po: '4',
-    //             Brand: 'Organic Express',
-
-    //              SKU: 'Appemidi Pickle',
-    //             HSN:' ',
-    //             MRP: '1250',
-    //             Quantity: 5,
-    //             UOM: '500 ml',
-    //             PriceorUnit: '1200',
-    //             "TaxableAmmount":'1000',
-    //             CGST: '3%',
-    //             SGST: '2%',
-    //             Ammount: '10000',
-
-    //         },
-    //         {
-    //             po: '5',
-    //             Brand: 'Organic Express',
-
-    //              SKU: 'Jeerige Midi Pickle',
-    //             HSN:' ',
-    //             MRP: '1250',
-    //             Quantity: 5,
-    //             UOM: '500 ml',
-    //             PriceorUnit: '1200',
-    //             "TaxableAmmount":'1000',
-    //             CGST: '3%',
-    //             SGST: '2%',
-    //             Ammount: '10000',
-
-    //         },
-    //         {
-    //             po: '1',
-    //             Brand: 'Vijay Eggs',
-
-    //              SKU: 'Premium Eggs',
-    //             HSN:' ',
-    //             MRP: '79',
-    //             Quantity: 5,
-    //             UOM: 'Pack of 6',
-    //             PriceorUnit: '1500',
-    //             "TaxableAmmount":'1200',
-    //             CGST: '3%',
-    //             SGST: '2%',
-    //             Ammount: '3000',
-
-    //         },
-    //         {
-    //             po: '2',
-    //             Brand: 'Vijay Eggs',
-
-    //              SKU: 'Brown Eggs',
-    //             HSN:' ',
-    //             MRP: '79',
-    //             Quantity: 5,
-    //             UOM: 'Pack of 6',
-    //             PriceorUnit: '1500',
-    //             "TaxableAmmount":'1200',
-    //             CGST: '3%',
-    //             SGST: '2%',
-    //             Ammount: '3000',
-
-    //         },
-    //         {
-    //             po: '3',
-    //             Brand: 'Vijay Eggs',
-
-    //              SKU: 'Brown Eggs',
-    //             HSN:' ',
-    //             MRP: '79',
-    //             Quantity: 5,
-    //             UOM: 'Pack of 6',
-    //             PriceorUnit: '1500',
-    //             "TaxableAmmount":'1200',
-    //             CGST: '3%',
-    //             SGST: '2%',
-    //             Ammount: '3000',
-
-    //         },
-    //         {
-    //             po: '4',
-    //             Brand: 'Vijay Eggs',
-
-    //              SKU: 'Premium Eggs',
-    //             HSN:' ',
-    //             MRP: '79',
-    //             Quantity: 5,
-    //             UOM: 'Pack of 6',
-    //             PriceorUnit: '1500',
-    //             "TaxableAmmount":'1200',
-    //             CGST: '3%',
-    //             SGST: '2%',
-    //             Ammount: '3000',
-
-    //         },
-    //         {
-    //             po: '5',
-    //             Brand: 'Vijay Eggs',
-
-    //              SKU: 'Premium Eggs',
-    //             HSN:' ',
-    //             MRP: '79',
-    //             Quantity: 5,
-    //             UOM: 'Pack of 6',
-    //             PriceorUnit: '1500',
-    //             "TaxableAmmount":'1200',
-    //             CGST: '3%',
-    //             SGST: '2%',
-    //             Ammount: '3000',
-
-    //         },
-    //         {
-    //             po: '6',
-    //             Brand: 'Vijay Eggs',
-
-    //              SKU: 'Brown Eggs',
-    //             HSN:' ',
-    //             MRP: '79',
-    //             Quantity: 5,
-    //             UOM: 'Pack of 6',
-    //             PriceorUnit: '1500',
-    //             "TaxableAmmount":'1200',
-    //             CGST: '3%',
-    //             SGST: '2%',
-    //             Ammount: '3000',
-
-    //         },
-    //         {
-    //             po: '1',
-    //             Brand: 'Roxy Roller Flour Mills (P) Ltd',
-
-    //             SKU: 'Nivah Sharbati Atta 1Kg',
-    //             HSN:' ',
-    //             MRP: '200',
-    //             Quantity: 2,
-    //             UOM: '1 Kg',
-    //             PriceorUnit: '1200',
-    //             "TaxableAmmount":'1000',
-    //             CGST: '3%',
-    //             SGST: '2%',
-    //             Ammount: '2000',
-
-    //         },
-    //          {
-    //             po: '2',
-    //             Brand: 'Roxy Roller Flour Mills (P) Ltd',
-
-    //             SKU: 'Nivah Sharbati Atta 1 Kg',
-    //             HSN:' ',
-    //             MRP: '200',
-    //             Quantity: 2,
-    //             UOM: '1 Kg',
-    //             PriceorUnit: '1200',
-    //             "TaxableAmmount":'1000',
-    //             CGST: '3%',
-    //             SGST: '2%',
-    //             Ammount: '2000',
-
-    //         },
-    //            {
-    //             po: '3',
-    //             Brand: 'Roxy Roller Flour Mills (P) Ltd',
-
-    //             SKU: 'Nivah Sharbati Atta 2 Kg',
-    //             HSN:' ',
-    //             MRP: '200',
-    //             Quantity: 2,
-    //             UOM: '2 Kg',
-    //             PriceorUnit: '1200',
-    //             "TaxableAmmount":'1000',
-    //             CGST: '3%',
-    //             SGST: '2%',
-    //             Ammount: '2000',
-
-    //         },
-    //            {
-    //             po: '4',
-    //             Brand: 'Roxy Roller Flour Mills (P) Ltd',
-
-    //             SKU: 'Nivah Sharbati Atta 5 Kg',
-    //             HSN:' ',
-    //             MRP: '200',
-    //             Quantity: 2,
-    //             UOM: '5 Kg',
-    //             PriceorUnit: '1200',
-    //             "TaxableAmmount":'1000',
-    //             CGST: '3%',
-    //             SGST: '2%',
-    //             Ammount: '2000',
-
-    //         },
-    //            {
-    //             po: '5',
-    //             Brand: 'Roxy Roller Flour Mills (P) Ltd',
-    //             SKU: 'Nivah High Quality Maida',
-    //             HSN:' ',
-    //             MRP: '200',
-    //             Quantity: 2,
-    //             UOM: '1 Kg',
-    //             PriceorUnit: '1200',
-    //             "TaxableAmmount":'1000',
-    //             CGST: '3%',
-    //             SGST: '2%',
-    //             Ammount: '2000',
-
-    //         },
-            
-              
-    // ],
-
+           
       headers: [
         // { text: 'Purchase Order', value: 'po' },
         { text: 'Product Name', value: 'sku_name' },
@@ -806,7 +432,7 @@ export default {
         { text: 'TaxableAmmount', value: 'calculatedTaxableAmount' },   
         { text: 'CGST', value: 'calculatedCGSTAmount' },  
         { text: 'SGST', value: 'calculatedSGSTAmount' },  
-        { text: 'Ammount', value: 'calculateTotalamount' }, 
+        { text: 'Amount', value: 'calculateTotalamount' }, 
         { text: 'Actions', value: 'action' }, 
 
 
@@ -814,7 +440,8 @@ export default {
 
     }
    },
-     computed: {
+  
+     computed: {     
        totalIndividualAmount() {
           return this.AllBrandproducts.reduce((total, item) => {
           const MRPP = parseFloat(item.mrp);
@@ -829,7 +456,15 @@ export default {
       savedamount() {
         const totalSavings = this.totalIndividualAmount - parseFloat(this.allAmmount);
         console.log('totalsave',totalSavings)
-        return Math.max(0, totalSavings).toFixed(2);
+        // return Math.max(0, totalSavings).toFixed(2);
+       return isNaN(totalSavings) ? 0 : Math.max(0, totalSavings).toFixed(2);
+        //  if (isNaN(totalSavings)) {
+        //   console.log('totalsave', 0);
+        //   return '0'; // or return 0; depending on your use case
+        // } else {
+        //   console.log('totalsave', totalSavings.toFixed(2));
+        //   return Math.max(0, totalSavings).toFixed(2);
+        // }
       },
 
       allAmmount(){
@@ -852,7 +487,10 @@ export default {
       },
      allQuantity() {
       // Calculate the total quantity dynamically
-      return this.AllBrandproducts.reduce((total, item) => total + parseFloat(item.quantity), 0);
+      const AllBproducts =  this.AllBrandproducts.reduce((total, item) => total + parseFloat(item.quantity), 0);
+
+      return isNaN(AllBproducts) ? 0 : AllBproducts.toFixed(0);
+
     },
       calculateTotalamount(){
          return this.AllBrandproducts.map((item,index) => {
@@ -924,21 +562,111 @@ export default {
     mounted(){
       this.getBrandsdata();
       this.createdBy = localStorage.getItem('createdby');
+      this.userIds = localStorage.getItem('userId');
+     
     },
     
-   methods:{
-   
+   methods:{ 
+    preventDecimal(event) {     
+      if (event.key === '.' || event.key === ',') {
+        event.preventDefault();
+      }
+    },
+     saveData(){
+        console.log('check the brandId',this.allCGSTAmount);
+        const postData = {
+          "brand_id": this.selectedBrandId,
+          "user_id": this.userIds,
+          "created_date": this.formData.created_date,
+          "po_status": this.formData.po_status,
+          "total_cgst": `${this.allCGSTAmount}`,
+          "total_sgst": `${this.allSGSTAmount}`,
+          "you_saved": `${this.savedamount}`,
+          "sub_total": `${this.allAmmount}`,
+          "total_so_amount": '',
+          "products": this.AllBrandproducts.map((product,index) => ({
+            "brand_product_id": product.brand_product_id,
+            "sku_name": product.sku_name,
+            "hsn_code": product.hsn_code,
+            "mrp": product.mrp,
+            "quantity":`${product.quantity}`,
+            "uom":product.uom,
+            "price_per_unit": `${this.calculatedPricePerUnit[index]}`,
+            "taxable_amount":`${this.calculatedTaxableAmount[index]}`,
+            "csgt":`${this.calculatedCGSTAmount[index]}`,
+            "sgst":`${this.calculatedSGSTAmount[index]}`,
+            "amount":`${this.calculateTotalamount[index]}`,
+            "total_give_margin": product.total_given_margin,
+            // Add other product properties as needed
+            // ...
+          })),
+        };
+        console.log('check the post data',postData);
+        this.postPurchaseorder(postData).then((response) =>{
+          console.log('check the response',response);
+            if (response.status == 1) {              
+               this.snackbar = true;
+               this.color = "success";
+               this.formData = {};
+               this.snackbarText = response.message;  
+               setTimeout(() => {
+                window.location.reload(true);
+            }, 2000);    
+            } else {          
+                 this.snackbar = true;
+                 this.color = "error";
+              };
+           
+        })
+     },
+  colorTGMmargin(text){
+    if(text){
+      return {
+          color: 'success',
+          // text: 'Shared',
+        }
+    }else{
+      return{
+        color: 'error'
+      }
+    }
+   },
+    colorSGSTmargin(text){
+    if(text){
+      return {
+          color: 'success',
+          // text: 'Shared',
+        }
+    }else{
+      return{
+        color: 'error'
+      }
+    }
+   },
+
+   colorCGSTmargin(text){
+    if(text){
+      return {
+          color: 'success',
+          // text: 'Shared',
+        }
+    }else{
+      return{
+        color: 'error'
+      }
+    }
+   },
 
     handleBrandSelection() {
       console.log('Brand changed:', this.selectedPurchaseOrder);
       const selectedBrand = this.Brandname.find(
         (brand) => brand.brand_name === this.selectedPurchaseOrder
       );
-        console.log("Select",selectedBrand);
+        console.log("Select Brand Details",selectedBrand);
 
       if (selectedBrand) {
         this.selectedBrandId = selectedBrand.brand_id;
-
+         console.log('check the brandId',this.selectedBrandId);
         this.getBrandproducts(this.selectedBrandId).then((response)=>{
                   this.AllBrandproducts = response.data;
                   console.log("BrandID",this.AllBrandproducts);

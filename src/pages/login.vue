@@ -17,6 +17,11 @@ const form = ref({
   remember: false,
 })
 
+const snackbar = ref({
+  show: false,
+  message: '',
+  color: '',
+});
 
 const vuetifyTheme = useTheme()
 const authThemeMask = computed(() => {
@@ -25,10 +30,7 @@ const authThemeMask = computed(() => {
 const isPasswordVisible = ref(false)
 
 const loginuser = () => {
-  // Add your logic here to handle form submission
-  // console.log('Form submitted with data:', form.value)
-  // You can use form.value to access the form data
-  //  if (validateForm()) {
+ 
     const requestData = {
       email: form.value.email,
       password: form.value.password
@@ -36,18 +38,35 @@ const loginuser = () => {
   //  }
    axios.post('http://103.211.218.32/bizkingz/services/api/auth/login', requestData)
     .then(response => {
-      // Handle the response data here
+     
       console.log('API Response:', response);
-      // You can update the state or perform other actions based on the response
-      if (response.data.message == "Login Successfully") {
-        // Navigate to another component using the router instance
-        router.push('/Dashboardhome'); // Replace 'YourComponentName' with the actual name of your component
-        localStorage.setItem("createdby",response.data.data.name);
+     
+      if (response.data.status == 1) {
+        router.push('/Dashboardhome');
+        localStorage.setItem("createdby", response.data.data.name);
+        localStorage.setItem("userId", response.data.data.user_id);
+         snackbar.value = {
+          show: true,
+          message: response.data.message,
+          color: 'success', 
+        };
+      } else {
+     
+          snackbar.value = {
+          show: true,
+          message: response.data.message, // Display the error message from the API
+          color: 'error', // Set the color to 'error' for red color, or use 'success' for green, etc.
+        };
       }
     })
     .catch(error => {
       // Handle errors here
       console.error('API Error:', error);
+      snackbar.value = {
+        show: true,
+        message: 'An error occurred while logging in. Please try again.',
+        color: 'error',
+      };
       // You can display an error message or take appropriate actions
     });
 }
@@ -127,8 +146,7 @@ const loginuser = () => {
                <br><br>
               <VBtn
                 block
-                type="submit"
-               
+                type="submit"               
               >
                 Login
               </VBtn>
@@ -186,6 +204,22 @@ const loginuser = () => {
       class="auth-footer-mask d-none d-md-block"
       :src="authThemeMask"
     />
+    <VSnackbar
+      v-model="snackbar.show"
+      :color="snackbar.color"
+      top
+    >
+      {{ snackbar.message }}
+      <!-- <template #action="{ attrs }">
+        <VBtn
+          v-bind="attrs"
+          text
+          @click="snackbar.show = false"
+        >
+          Close
+        </VBtn>
+      </template> -->
+    </VSnackbar>
   </div>
 </template>
 
