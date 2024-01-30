@@ -50,5 +50,35 @@ export default {
             return err.response;
           });
         },
+        getPurchaseorder(userid,userrole){
+          return axios
+          .get(this.url +"bizkingz/services/api/purchase/getPurchaseOrders?user_id="+userid+"&user_role="+userrole, {
+            headers: {
+              "Content-Type": "application/json",
+              "accept": "*/*",
+            //   "Authorization": "Bearer "+token
+            }
+          })
+          .then(response => {
+            return response.data;
+          });
+        },
+        postupdatePurchaseorder(reqbody){
+          return axios
+          .post(this.url +"bizkingz/services/api/purchase/updateOrder",reqbody, {
+            // withCredentials: true,
+            headers: {
+              "Content-Type": "application/json",
+         
+            }
+          })
+          .then(response => {
+            return response.data;
+          })
+          .catch(err => {
+            console.log('check tick',err);
+            return err.response;
+          });
+        },
     }
 }

@@ -2,7 +2,7 @@
   <div>
 <VTable
        :headers="headers"
-       :items="desserts"
+       :items="purchaseHistory"
         item-key="dessert"
       class="table-rounded"      
        height="400"
@@ -22,25 +22,25 @@
 
       <tbody>
        <tr
-        v-for="item in desserts"
-        :key="item.dessert"
+        v-for="(item,index) in purchaseHistory"
+        :key="index"
       >       
-        <td class="text-center">{{ item.dessert }}</td>
+        <td class="text-center">{{ item.po_number }}</td>
         <td class="text-center">
-          {{ item.calories }}
+          {{ item.created_date }}
         </td>
         <td class="text-center">
            <VChip
-        :color="resolveStatusVariant(item.fat).color"
+        :color="resolveStatusVariant(item.po_status).color"
         class="font-weight-medium"
         size="small"
       >
-        {{ resolveStatusVariant(item.fat).text }}
+        {{ item.po_status }}
           <!-- {{ item.fat }} -->
             </VChip>
         </td>
         <td class="text-center">
-          {{ item.carbs }}
+          {{ item.brand_name }}
         </td>
         <td class="text-center">
           {{ item.protein }}
@@ -94,99 +94,50 @@
 </template>
 
 <script>
+import servicescall from "@/Services";
+
 export default {
+  mixins: [servicescall],
+
     data(){
         return{
-     desserts: [
-            {
-                dessert: 'Frozen Yogurt',
-                calories: '19-01-2024',
-                fat: 'Acknowledged',
-                carbs: 24,
-                protein: 4,
-                actions: 'Receive Stock'
-
-            },
-            {
-                dessert: 'Ice cream sandwich',
-                calories: '19-01-2024',
-                fat: 'Shared',
-                carbs: 24,
-                protein: 4,
-                actions: 'Receive Stock'
-
-            },
-            {
-                dessert: 'Eclair',
-                calories: '19-01-2024',
-                fat: 'Acknowledged',
-                carbs: 24,
-                protein: 4,
-                actions: 'Receive Stock'
-
-            },
-            {
-                dessert: 'Cupcake',
-                calories: '19-01-2024',
-                fat: 'Acknowledged',
-                carbs: 24,
-                protein: 4,
-                actions: 'Receive Stock'
-
-            },
-            {
-                dessert: 'Gingerbread',
-                calories: '19-01-2024',
-                fat: 'Shared',
-                carbs: 24,
-                protein: 4,
-                actions: 'Receive Stock'
-
-            },
-              {
-                dessert: 'Gingerbread',
-                calories: '19-01-2024',
-                fat: 'Shared',
-                carbs: 24,
-                protein: 4,
-                actions: 'Receive Stock'
-
-            },
-              {
-                dessert: 'Gingerbread',
-                calories: '19-01-2024',
-                fat: 'Shared',
-                carbs: 24,
-                protein: 4,
-                actions: 'Receive Stock'
-
-            },
-              {
-                dessert: 'Gingerbread',
-                calories: '19-01-2024',
-                fat: 'Acknowledged',
-                carbs: 24,
-                protein: 4,
-                actions: 'Receive Stock'
-            },
-    ],
+    purchaseHistory:[],
+    userIds:'',
+    createdBy:'',
       headers: [
-        
-        { text: 'Purchase Order', value: 'dessert' },
-        { text: 'Order Date', value: 'calories' },
-        { text: 'Status', value: 'fat' },
-        { text: 'Order To', value: 'carbs' },
-        { text: 'Shipped To', value: 'protein' },
-        { text: 'Action', value: 'actions', sortable: false },
-      ],
+          { text: 'PO Number', value: 'po_number' },
+          { text: 'Order Date', value: 'created_date' },
+          { text: 'Status', value: 'po_status' },
+          { text: 'Order To', value: 'brand_name'},
+          { text: 'Shipped To', value: 'brand_name' },
+          // { text: 'Price/Unit', value: 'price_per_unit' },        
+          // { text: 'TaxableAmount', value: 'taxable_amount' },   
+          // { text: 'CGST', value: 'csgt' },  
+          // { text: 'SGST', value: 'sgst' },  
+          { text: 'Action', value: 'actions' }, 
+         ],
         }
     },
+    mounted(){
+   
+       this.createdBy = localStorage.getItem('createdby');
+        this.userIds = localStorage.getItem('userId');
+           this.getPurchasehistorydetails();
+    },
     methods:{
+      getPurchasehistorydetails(){
+        this.getPurchaseorder(this.userIds,this.userRoles).then((response) =>{
+          console.log('check the view purchase order',response.data);
+          this.purchaseHistory = response.data;
+          console.log('check the view purchase History',this.purchaseHistory);
+
+        })
+      },
       resolveStatusVariant (status){
       if (status == 'Acknowledged')
         return {
           color: 'warning',
-          text: 'Acknowledged',
+          // text: 'Acknowledged',
         }
      
       
@@ -194,7 +145,7 @@ export default {
       else
         return {
           color: 'info',
-          text: 'Shared',
+          // text: 'Shared',
         }
       },
     }

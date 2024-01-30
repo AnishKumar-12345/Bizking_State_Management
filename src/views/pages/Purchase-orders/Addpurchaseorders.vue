@@ -8,7 +8,7 @@
         <VCardText>
           
           <!-- 👉 Form -->
-          <VForm class="mt-6 ">
+          <VForm class="mt-6" ref="purchaseOrderForm">
            
             <VRow>
     
@@ -48,7 +48,7 @@
                   type="date"
                   label="Date"
                   :min="today"
-                
+                  :rules="dateRules"
                 />
               </VCol>
             
@@ -60,7 +60,8 @@
                 <VSelect
                   v-model="formData.po_status"
                   label="PO Status"
-                  :items="['Draft','Created','Shared','Acknowledged','Received','Close']"
+                  :items="['Draft','Created','Shared','Acknowledged']"
+                  :rules="Statusrules"           
                 />
               </VCol>
               <VDivider />
@@ -87,6 +88,7 @@
        :items="AllBrandproducts"
         
       >
+           
        <thead>
         <tr>
           <th
@@ -104,7 +106,7 @@
         v-for="(item,index) in AllBrandproducts"
         :key="index"
       >
-       
+  
         <!-- <td class="text-center">{{ item.po }}</td> -->
         <td class="text-center">
           {{ item.sku_name }}
@@ -116,8 +118,8 @@
           &#8377;{{ item.mrp }}
         </td>
         <td class="text-center">
-          <VTextField  @keydown="preventDecimal"    
-          step="1"  type="number" v-model="item.quantity" style="min-width:80px;"/>
+          <VTextField  @keydown="preventDecimal" @paste="preventPaste"   
+        type="number" v-model="item.quantity" style="min-width:80px;"/>
           <!-- {{ item.Quantity }} -->
         </td>
          <td class="text-center">
@@ -126,7 +128,7 @@
         <td class="text-center">
          &#8377; {{calculatedPricePerUnit[index]}} <br>
           <!-- &#8377;{{ item.total_given_margin }} -->
-           <VChip
+      <VChip
         :color="colorTGMmargin(item.total_given_margin).color"
         class="font-weight-medium"
         size="small"
@@ -180,16 +182,7 @@
                 size="24"
                 />
             </VBtn>
-
-             <!-- <VBtn
-              icon
-              variant="text"
-              color="default"
-              size="small"
-              @click="addNewRow(item)"
-            >
-              <VIcon icon="mdi-plus-circle-outline" size="24" />
-            </VBtn> -->
+            
           </td>
       
       </tr>
@@ -210,11 +203,11 @@
           </tr>
          <tr>
           <!-- Left Side: CGST -->
-          <td class="text-left" color="success">Tax Details</td>
+          <td class="text-left" style="font-weight:Bold">Tax Details:</td>
           <td colspan="4" class="text-right"></td>
           
           <!-- Right Side: Subtotal -->
-          <td colspan="4" class="text-left">Amounts:</td> <!-- Empty cells for merging -->
+          <td colspan="4" class="text-left" style="font-weight:Bold">Amounts:</td> <!-- Empty cells for merging -->
           <td colspan="4" class="text-center"></td>
         </tr>
 
@@ -275,13 +268,13 @@
                 cols="12"
                 class="d-flex flex-wrap gap-4"
               >
-                <VBtn @click="saveData">Save</VBtn>
-
+                <VBtn @click="validateForm">Save</VBtn>
+  <!-- @click="resetdetails" -->
                 <VBtn
                   color="secondary"
                   variant="tonal"
-                  type="reset"
-               
+                  @click="resetdetails()"
+                
                 >
                   Reset
                 </VBtn>
@@ -363,8 +356,18 @@ export default {
   },
    data(){
     return{
-       snackbar: false,
-       snackbarText: '',
+       dateRules: [
+         (v) => !!v || 'Date is required',
+      ],
+      Statusrules: [
+          (v) => !!v || 'Status Is Required',
+      ],
+      quantityrules: [
+          (v) => !!v || 'Quantity Is Required',
+
+      ],
+      snackbar: false,
+      snackbarText: '',
       timeout: 6000, // milliseconds
       color: '', // or 'error', 'warning', 'info', etc.
       top: false,
@@ -375,7 +378,7 @@ export default {
       formData: {
             brand_id: "",
             user_id: "",
-            created_date: "",
+            created_date: this.getFormattedDate(new Date()),
             po_status: "",
             total_cgst: "",
             total_sgst: "",
@@ -413,7 +416,7 @@ export default {
           Ammount: 0,
         },
 
-       today: new Date().toISOString().substr(0, 10), 
+       today: this.getFormattedDate(new Date()),
       // selectedDate: new Date().toISOString().substr(0, 10),
       landscape: false,
       noTitle: false,
@@ -429,7 +432,7 @@ export default {
         { text: 'Quantity', value: 'quantity'},
         { text: 'UOM', value: 'uom' },
         { text: 'Price/Unit', value: 'calculatedPricePerUnit' },        
-        { text: 'TaxableAmmount', value: 'calculatedTaxableAmount' },   
+        { text: 'TaxableAmount', value: 'calculatedTaxableAmount' },   
         { text: 'CGST', value: 'calculatedCGSTAmount' },  
         { text: 'SGST', value: 'calculatedSGSTAmount' },  
         { text: 'Amount', value: 'calculateTotalamount' }, 
@@ -458,13 +461,7 @@ export default {
         console.log('totalsave',totalSavings)
         // return Math.max(0, totalSavings).toFixed(2);
        return isNaN(totalSavings) ? 0 : Math.max(0, totalSavings).toFixed(2);
-        //  if (isNaN(totalSavings)) {
-        //   console.log('totalsave', 0);
-        //   return '0'; // or return 0; depending on your use case
-        // } else {
-        //   console.log('totalsave', totalSavings.toFixed(2));
-        //   return Math.max(0, totalSavings).toFixed(2);
-        // }
+        
       },
 
       allAmmount(){
@@ -559,6 +556,7 @@ export default {
     },
     
     },
+    
     mounted(){
       this.getBrandsdata();
       this.createdBy = localStorage.getItem('createdby');
@@ -567,24 +565,73 @@ export default {
     },
     
    methods:{ 
+     getFormattedDate(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    },
+
+    resetdetails(){    
+     this.AllBrandproducts.map((e) => e.quantity = '');    
+    },
+
+      validateForm() {      
+       this.$refs.purchaseOrderForm.validate().then(valid => {
+        console.log("form valid", valid.valid);
+        if (valid.valid == true) {
+          // this.saveData();
+          if(this.allQuantity >=1){   
+             this.saveData();
+          }else{
+            this.snackbar = true;
+            this.snackbarText = "Please give Quantities"
+            this.color = "error";
+          }
+        }else{
+           this.snackbar = true;
+            this.snackbarText = "Please give all mandatory fields"
+            this.color = "error";
+        }
+      });     
+    },
+
+    preventPaste(event){
+      const clipboardData = event.clipboardData || window.clipboardData;
+      const pastedData = clipboardData.getData('text');
+
+      // Validate pasted data (you can modify this regex as needed)
+      const isValid = /^[0-9]+$/.test(pastedData);
+
+      if (!isValid) {
+        event.preventDefault();
+      }
+    },
+
     preventDecimal(event) {     
-      if (event.key === '.' || event.key === ',') {
+      if (event.key === '.' || event.key === ',' || event.keyCode === 189 || event.keyCode === 109) {
         event.preventDefault();
       }
     },
      saveData(){
-        console.log('check the brandId',this.allCGSTAmount);
+        console.log('check the CGST Amount',this.allCGSTAmount);
+        const statusMapping = {
+            'Draft': "1",
+            'Created': "2",
+            'Shared': "3",
+            'Acknowledged': "4",
+          };
         const postData = {
           "brand_id": this.selectedBrandId,
           "user_id": this.userIds,
           "created_date": this.formData.created_date,
-          "po_status": this.formData.po_status,
+          "po_status": statusMapping[this.formData.po_status],
           "total_cgst": `${this.allCGSTAmount}`,
           "total_sgst": `${this.allSGSTAmount}`,
           "you_saved": `${this.savedamount}`,
-          "sub_total": `${this.allAmmount}`,
-          "total_so_amount": '',
-          "products": this.AllBrandproducts.map((product,index) => ({
+          "sub_total": `${this.allTaxableAmmount}`,
+          "total_po_amount": `${this.allAmmount}`,
+          "products": this.AllBrandproducts.filter(product => product.quantity > 0).map((product,index) => ({
             "brand_product_id": product.brand_product_id,
             "sku_name": product.sku_name,
             "hsn_code": product.hsn_code,
@@ -596,14 +643,14 @@ export default {
             "csgt":`${this.calculatedCGSTAmount[index]}`,
             "sgst":`${this.calculatedSGSTAmount[index]}`,
             "amount":`${this.calculateTotalamount[index]}`,
-            "total_give_margin": product.total_given_margin,
-            // Add other product properties as needed
-            // ...
+            "total_give_margin": product.total_given_margin
           })),
         };
         console.log('check the post data',postData);
-        this.postPurchaseorder(postData).then((response) =>{
+      
+          this.postPurchaseorder(postData).then((response) =>{
           console.log('check the response',response);
+          console.log('check the response',response.status);
             if (response.status == 1) {              
                this.snackbar = true;
                this.color = "success";
@@ -611,13 +658,15 @@ export default {
                this.snackbarText = response.message;  
                setTimeout(() => {
                 window.location.reload(true);
-            }, 2000);    
+            }, 1500);    
             } else {          
                  this.snackbar = true;
                  this.color = "error";
               };
            
         })
+ 
+      
      },
   colorTGMmargin(text){
     if(text){

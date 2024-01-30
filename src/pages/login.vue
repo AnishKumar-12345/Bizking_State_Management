@@ -15,6 +15,7 @@ const form = ref({
   email: '',
   password: '',
   remember: false,
+  timeout: 6000,
 })
 
 const snackbar = ref({
@@ -42,9 +43,12 @@ const loginuser = () => {
       console.log('API Response:', response);
      
       if (response.data.status == 1) {
-        router.push('/Dashboardhome');
+         setTimeout(() => {
+                router.push('/Dashboardhome');
+            }, 1000);          
         localStorage.setItem("createdby", response.data.data.name);
         localStorage.setItem("userId", response.data.data.user_id);
+        localStorage.setItem("userRole", response.data.data.user_role);
          snackbar.value = {
           show: true,
           message: response.data.message,
@@ -208,6 +212,7 @@ const loginuser = () => {
       v-model="snackbar.show"
       :color="snackbar.color"
       top
+      :timeout="1000"
     >
       {{ snackbar.message }}
       <!-- <template #action="{ attrs }">
