@@ -1,227 +1,238 @@
 <template>
-    <div>
-         <VRow>
+  <div>
+    <VRow>
       <VCol cols="12">
-       <VCard title="Input Stock" class="mb-4">       
-
-        <VCardText>
-          <!-- 👉 Form -->
-          <VForm class="mt-6 ">
-            <VRow>
-    
-              <VCol
-                md="6"
-                cols="12"
-              >
-                <VSelect
-                  v-model="selectedPurchaseOrder"
-                  label="Purchase Order"
-                  :items="['PO1', 'PO2', 'PO3','PO4','PO5']"
-                />
-               
-              </VCol>
-
-
-            
-              <VCol
-                cols="12"
-                md="6"
-              >
-                <VTextField
-                
-                  label="Order To"
-               
-                />
-              </VCol>
-      
-              <VCol
-                cols="12"
-                md="6"
-              >
-                <VTextField
-                
-                  label="Date"
-                />
-              </VCol>
-            
-            <VCol
-                md="6"
-                cols="12"
-              >
-                <VSelect
-                 
-                  label="PO Status"
-                    :items="['Draft','Created','Shared','Acknowledged','Received','Close']"
-                />
-              </VCol>
-              <VCol cols="12">
-                
-              <VTable
-              :headers="headers"
-              :items="desserts"
-                
-              >
-              <thead>
-                <tr>
-                  <th
-                  class="text-center"
-                    v-for="header in headers"
-                    :key="header"
-                  >
-                    {{ header.text }}
-                  </th>
-                </tr>
-              </thead>
-
-      <tbody>
-       <tr
-        v-for="item in filteredDesserts"
-        :key="item.id"
-      >
-       <td  class="text-center">
-           {{item.id}}
-          </td>
-        <td class="text-center">{{ item.dessert }}</td>
-        <td class="text-center">
-          {{ item.calories }}
-        </td>
-        <td class="text-center">
-          <VTextField v-model="item.fat" outlined dense />
-          <!-- {{ item.fat }} -->
-        </td>
-        <td class="text-center">
-          <VTextField v-model="item.carbs" outlined dense />
-
-          <!-- {{ item.carbs }} -->
-        </td>
-        <td class="text-center">
-          <VTextField v-model="item.protein" outlined dense />
-
-          <!-- {{ item.protein }} -->
-        </td>
-      </tr>
-      </tbody>        
-        </VTable>
-
-              </VCol>
-              <VCol
-                cols="12"
-                class="d-flex flex-wrap gap-4"
-              >
-                <VBtn>Save</VBtn>
-
-                <VBtn
-                  color="secondary"
-                  variant="tonal"
-                  type="reset"
-               
+        <VCard
+          title="Input Stock"
+          class="mb-4"
+        >
+          <VCardText>
+            <!-- 👉 Form -->
+            <VForm class="mt-6">
+              <VRow>
+                <VCol
+                  md="6"
+                  cols="12"
                 >
-                  Reset
-                </VBtn>
-              </VCol>
-            </VRow>
-          </VForm>
+                  <!-- :items="['PO1', 'PO2', 'PO3','PO4','PO5']" -->
 
-        </VCardText>
-      </VCard>
-    </VCol>  
-  </VRow>    
+                  <VSelect
+                    v-model="this.inputStock.po_number"
+                    label="Purchase Order"
+                  />
+                </VCol>
 
- 
-    </div>
+                <VCol
+                  cols="12"
+                  md="6"
+                >
+                  <VTextField
+                    v-model="this.inputStock.brand_name"
+                    label="Order To"
+                  />
+                </VCol>
+
+                <VCol
+                  cols="12"
+                  md="6"
+                >
+                  <VTextField
+                    v-model="this.inputStock.created_date"
+                    type="date"
+                    label="Date"
+                    :min="today"
+                    :rules="dateRules"
+                    readonly
+                  />
+                </VCol>
+
+                <VCol
+                  md="6"
+                  cols="12"
+                >
+                  <VSelect
+                    v-model="this.inputStock.po_status"
+                    label="PO Status"
+                    :items="['Draft', 'Created', 'Shared', 'Acknowledged', 'Received', 'Close']"
+                  />
+                </VCol>
+                <VCol cols="12">
+                  <VTable
+                    :headers="headers"
+                    :items="InputStockDetails"
+                  >
+                    <thead>
+                      <tr>
+                        <th
+                          class="text-center"
+                          v-for="header in headers"
+                          :key="header"
+                        >
+                          {{ header.text }}
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      <tr
+                        v-for="(item, index) in this.inputStockproducts"
+                        :key="index"
+                      >
+                        <td class="text-center">{{ item.sku_name }}</td>
+                        <td class="text-center">
+                          {{ item.quantity }}
+                        </td>
+                        <td class="text-center">
+                          <VTextField
+                            v-model="item.quantity"
+                            outlined
+                            dense
+                          />
+                        </td>
+                        <td class="text-center">
+                          <VTextField
+                            v-model="item.carbs"
+                            outlined
+                            dense
+                          />
+                        </td>
+                        <td class="text-center">
+                          <VTextField
+                            v-model="item.protein"
+                            outlined
+                            dense
+                          />
+                        </td>
+                      </tr>
+                    </tbody>
+                  </VTable>
+                </VCol>
+                <VCol
+                  cols="12"
+                  class="d-flex flex-wrap gap-4"
+                >
+                  <VBtn>Save</VBtn>
+
+                  <VBtn
+                    color="secondary"
+                    variant="tonal"
+                    type="reset"
+                  >
+                    Reset
+                  </VBtn>
+                </VCol>
+              </VRow>
+            </VForm>
+          </VCardText>
+        </VCard>
+      </VCol>
+    </VRow>
+  </div>
 </template>
 <script>
+import servicescall from '@/Services'
+
 export default {
-   data(){
-    return{
+  mixins: [servicescall],
+
+  props: ['po_id'],
+  data() {
+    return {
+      today: this.getFormattedDate(new Date()),
+      inputStock: {
+        po_number: '',
+        brand_name: '',
+        created_date: this.getFormattedDate(new Date()),
+        po_status: '',
+        you_saved: '',
+        po_id: '',
+        po_number: '',
+        brand_id: '',
+        products: [
+          {
+            brand_product_id: '',
+            sku_name: '',
+            hsn_code: '',
+            mrp: '',
+            quantity: '',
+            uom: '',
+            price_per_unit: '',
+            taxable_amount: '',
+            cgst: '',
+            sgst: '',
+            amount: '',
+            total_give_margin: '',
+          },
+        ],
+      },
+      PoId: '',
+      InputStockDetails: [],
       selectedPurchaseOrder: null,
-        dialog: false,
-     desserts: [
-         {
-          id:1,
-        dessert: 'Frozen Yogurt',
-        calories: 159,
-        fat: 6,
-        carbs: 24,
-        protein: 4,
-        purchaseOrder: 'PO1'
-      },
-      {
-        id:2,
-        dessert: 'Ice cream sandwich',
-        calories: 237,
-        fat: 6,
-        carbs: 24,
-        protein: 4,
-        purchaseOrder: 'PO2'
-      },
-      {
-        id:3,
-        dessert: 'Eclair',
-        calories: 262,
-        fat: 6,
-        carbs: 24,
-        protein: 4,
-        purchaseOrder: 'PO3'
-      },
-      {
-        id:4,
-        dessert: 'Cupcake',
-        calories: 305,
-        fat: 6,
-        carbs: 24,
-        protein: 4,
-        purchaseOrder: 'PO4'
-      },
-      {
-        id:5,
-        dessert: 'Gingerbread',
-        calories: 356,
-        fat: 6,
-        carbs: 24,
-        protein: 4,
-        purchaseOrder: 'PO5'
-      },
-      ],
+      dialog: false,
+
       headers: [
-        { text: 'Product ID', value: 'id'},
-        { text: 'Product Name', value: 'dessert' },
-        { text: 'Ordered Quantity', value: 'calories' },
-        { text: 'Received Quantity', value: 'fat' },
+        // { text: 'Product ID', value: 'po_number'},
+        { text: 'Product Name', value: 'brand_name' },
+        { text: 'Ordered Quantity', value: 'quantity' },
+        { text: 'Received Quantity', value: 'quantity' },
         { text: 'RTM', value: 'carbs' },
         { text: 'Remarks', value: 'protein' },
       ],
     }
-   },
-   computed: {
-  filteredDesserts() {
-    if (!this.selectedPurchaseOrder) {
-      // return this.desserts; 
-    }
-
-    return this.desserts.filter(item => item.purchaseOrder === this.selectedPurchaseOrder);
   },
-},
-   methods:{
-     deleteRow(item) {
-      // Implement your logic to delete the row
-      const index = this.desserts.indexOf(item);
-      if (index !== -1) {
-        this.desserts.splice(index, 1);
+  computed: {
+    filteredDesserts() {
+      if (!this.selectedPurchaseOrder) {
+        // return this.desserts;
       }
+      return this.desserts.filter(item => item.purchaseOrder === this.selectedPurchaseOrder)
+    },
+  },
+
+  mounted() {
+    this.PoId = this.$route.query.po_id
+    console.log('Received po_id:', this.PoId)
+    this.getInputstockdetails()
+  },
+
+  methods: {
+    getFormattedDate(date) {
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
     },
 
-      openproductdialog(){
-    console.log('check the dialog')
-      this.dialog = true;
-   },
-    closeDialog() {
-      this.dialog = false;
+    getInputstockdetails() {
+      this.getInputstock(this.PoId).then(response => {
+        this.InputStockDetails = response.data
+        console.log('check input dtock', response)
+
+        this.InputStockDetails.forEach(item => {
+          this.inputStock.po_number = item.po_number
+          this.inputStock.brand_name = item.brand_name
+          this.inputStock.po_status = item.po_status
+          this.inputStockproducts = item.products
+          console.log('inputStockproducts', this.inputStockproducts)
+        })
+      })
     },
-   },
- 
+    //  deleteRow(item) {
+
+    //   const index = this.desserts.indexOf(item);
+    //   if (index !== -1) {
+    //     this.desserts.splice(index, 1);
+    //   }
+    // },
+
+    //     openproductdialog(){
+    //     console.log('check the dialog')
+    //     this.dialog = true;
+    //  },
+    //   closeDialog() {
+    //     this.dialog = false;
+    //   },
+  },
 }
 </script>
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -40,10 +40,10 @@ export default{
           title: 'Oppertunity  ',
           icon: "ic:baseline-connect-without-contact",
           children: [
-            { id: 23, title: 'View Oppertunity', route: '/Createpurchaseorder' },
-            { id: 24, title: 'Generate Quote', route: '/Viewpurchaseorder' },
-             { id: 25, title: 'Update Oppertunity', route: '/Viewpurchaseorder' },
-              { id: 26, title: 'Close Oppertunity', route: '/Viewpurchaseorder' },
+            { id: 23, title: 'View Oppertunity', route: '/Viewoppertunities' },
+            { id: 24, title: 'Generate Quote', route: '/Oppertunitygeneratequote' },
+             { id: 25, title: 'Update Oppertunity', route: '/Updateoppertunities' },
+              { id: 26, title: 'Close Oppertunity', route: '/Closealloppertunities' },
          ],
           expanded: false,
         },
@@ -52,9 +52,9 @@ export default{
           title: 'Service  ',
           icon: "ri:customer-service-2-line",
           children: [
-            { id: 27, title: 'Add Service', route: '/Createpurchaseorder' },
-            { id: 28, title: 'Update Service', route: '/Viewpurchaseorder' },
-             { id: 29, title: 'Delete Service', route: '/Viewpurchaseorder' },             
+            { id: 27, title: 'Add Service', route: '/Addservicesdetails' },
+            { id: 28, title: 'Update Service', route: '/Updateservicedetails' },
+             { id: 29, title: 'Delete Service', route: '/Deleteservicesdetails' },             
          ],
           expanded: false,
         },
@@ -63,20 +63,20 @@ export default{
           title: 'Product  ',
           icon: "ic:baseline-production-quantity-limits",
           children: [
-            { id: 30, title: 'Add Product', route: '/Createpurchaseorder' },
-            { id: 31, title: 'Update Product', route: '/Viewpurchaseorder' },
-             { id: 32, title: 'Delete Product', route: '/Viewpurchaseorder' },             
+            { id: 30, title: 'Add Product', route: '/Addproductdetails' },
+            { id: 31, title: 'Update Product', route: '/Viewproductdetails' },
+             { id: 32, title: 'Delete Product', route: '/Deleteproductdetails' },             
          ],
           expanded: false,
-        },
+         },
          {
           id: 6,
           title: 'Merchant',
           icon: "mdi-person-group-outline",
           children: [
-            { id: 33, title: 'Onboard Merchant', route: '/account-settings' },
-            { id: 34, title: 'Update Merchant Details', route: '/tables' },
-             { id: 35, title: 'Update Merchant Service', route: '/tables' },                    
+            { id: 33, title: 'Onboard Merchant', route: '/Onboardmerchantdetails' },
+            { id: 34, title: 'Update Merchant Details', route: '/Updatemerchant' },
+             { id: 35, title: 'Update Merchant Service', route: '/Updatemerchantservicedetails' },                    
 
           ],
           expanded: false,
@@ -173,10 +173,11 @@ export default{
 <template>
   <!-- 👉 Nav header -->
   <div class="nav-header">
-    <RouterLink
+    <!-- <RouterLink
       to="/"
       class="app-logo d-flex align-center gap-x-3 app-title-wrapper"
-    >
+    > -->
+    <div class="app-logo d-flex align-center gap-x-3 app-title-wrapper">
       <!-- ℹ️ You can also use img tag or VImg here -->
       <!-- <div v-html="logo" /> -->
       <img src="@/assets/images/logos/comlogo.jpeg" height="60" width="60" style="padding:5px;">
@@ -192,7 +193,8 @@ export default{
  
        
       </Transition> -->
-    </RouterLink>
+      </div>
+    <!-- </RouterLink> -->
   </div>
 
   <!-- 👉 Nav items -->

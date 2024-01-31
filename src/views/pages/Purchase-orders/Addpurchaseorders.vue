@@ -21,6 +21,7 @@
                   v-model="selectedPurchaseOrder"
                   label="Brand or Manufacturer"
                   :items="brandNames"               
+                  :rules="BrandRules"
                   @update:model-value="handleBrandSelection"
                 />
               </VCol>
@@ -49,6 +50,7 @@
                   label="Date"
                   :min="today"
                   :rules="dateRules"
+                  readonly
                 />
               </VCol>
             
@@ -119,7 +121,11 @@
         </td>
         <td class="text-center">
           <VTextField  @keydown="preventDecimal" @paste="preventPaste"   
-        type="number" v-model="item.quantity" style="min-width:80px;"/>
+        v-model="item.quantity" type="number" min="1" max="10" style="min-width:80px;"
+     
+         
+          />
+          
           <!-- {{ item.Quantity }} -->
         </td>
          <td class="text-center">
@@ -260,7 +266,7 @@
           <td colspan="4" class="text-left">You Saved</td> <!-- Empty cells for merging -->
           <td colspan="4" class="text-center">&#8377;{{ savedamount }}</td>
         </tr>
-  </tfoot>        
+     </tfoot>        
         </VTable>
               </VCol>
 
@@ -288,7 +294,7 @@
   </VRow>
 
      <VSnackbar
-      v-model="snackbar" :timeout="4000"
+      v-model="snackbar" :timeout="3500"
       :color="color"
       
     >
@@ -356,7 +362,10 @@ export default {
   },
    data(){
     return{
-       dateRules: [
+      BrandRules: [
+         (v) => !!v || 'Brand is required',
+      ],
+      dateRules: [
          (v) => !!v || 'Date is required',
       ],
       Statusrules: [
@@ -383,6 +392,7 @@ export default {
             total_cgst: "",
             total_sgst: "",
             you_saved: "",
+            total_quantity: "",
             'sub_total(taxable_amount_total)': "", // Rename the property as per your API
             total_so_amount: "",
             products: [
@@ -565,6 +575,11 @@ export default {
     },
     
    methods:{ 
+      validateNumericInput(event) {
+      // Remove non-numeric characters from the input
+      const numericValue = event.target.value.replace(/[^0-9]/g, '');
+      this.item.quantity = numericValue;
+    },
      getFormattedDate(date) {
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -631,6 +646,7 @@ export default {
           "you_saved": `${this.savedamount}`,
           "sub_total": `${this.allTaxableAmmount}`,
           "total_po_amount": `${this.allAmmount}`,
+          "total_quantity": `${this.allQuantity}`,
           "products": this.AllBrandproducts.filter(product => product.quantity > 0).map((product,index) => ({
             "brand_product_id": product.brand_product_id,
             "sku_name": product.sku_name,
@@ -658,7 +674,7 @@ export default {
                this.snackbarText = response.message;  
                setTimeout(() => {
                 window.location.reload(true);
-            }, 1500);    
+            }, 1300);    
             } else {          
                  this.snackbar = true;
                  this.color = "error";

@@ -48,7 +48,7 @@ export default {
           .catch(err => {
             console.log('check tick',err);
             return err.response;
-          });
+          }); 
         },
         getPurchaseorder(userid,userrole){
           return axios
@@ -80,5 +80,18 @@ export default {
             return err.response;
           });
         },
+        getInputstock(request){
+          return axios
+          .get(this.url +"bizkingz/services/api/purchase/getPurchaseOrderDetails?po_id="+request, {
+            headers: {
+              "Content-Type": "application/json",
+              "accept": "*/*",
+            //   "Authorization": "Bearer "+token
+            }
+          })
+          .then(response => {
+            return response.data;
+          });
+        }
     }
 }

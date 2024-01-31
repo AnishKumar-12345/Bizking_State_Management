@@ -18,6 +18,26 @@ const form = ref({
   timeout: 6000,
 })
 
+const emailRules = computed(() => {
+  const rules = []
+
+  // Email validation rule
+  rules.push((v) => !!v || 'Email is required')
+  rules.push((v) => /.+@.+\..+/.test(v) || 'Email must be valid')
+
+  return rules
+})
+
+const passwordrules = computed(() => {
+  const rules = []
+
+  // Email validation rule
+  rules.push((v) => !!v || 'Password is required')
+  // rules.push((v) => /.+@.+\..+/.test(v) || 'Email must be valid')
+
+  return rules
+})
+
 const snackbar = ref({
   show: false,
   message: '',
@@ -114,7 +134,7 @@ const loginuser = () => {
                 v-model="form.email"
                 label="Email"
                 type="email"
-              
+                 :rules="emailRules"
               />
             </VCol>
 
@@ -126,7 +146,7 @@ const loginuser = () => {
                 :type="isPasswordVisible ? 'text' : 'password'"
                 :append-inner-icon="isPasswordVisible ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"
                 @click:append-inner="isPasswordVisible = !isPasswordVisible"
-               
+               :rules="passwordrules"
                 
               />
               <!-- <span v-if="!isPasswordValid" class="error-message">Password must be at least 6 characters</span> -->

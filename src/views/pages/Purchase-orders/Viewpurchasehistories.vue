@@ -1,11 +1,41 @@
 <template>
   <div>
-<VTable
+      <div v-if="loading"  class="loading-container">
+      <VProgressLinear
+            height="5"
+            color="primary"
+            indeterminate
+            class="custom-loader"  
+            full-width              
+        />          
+     </div>
+
+      <VRow v-if="this.filteredPurchaseHistory == null">
+      <VCol cols="12"> 
+        <VCard title="Purchase Order View">
+          <VCardText> 
+            <!-- 👉 Checkbox and Button  -->
+            <VAlert
+              color="warning"
+              variant="tonal"
+              class="mb-4"              
+              border="top"
+            >
+              <VAlertTitle class="mb-1"> Are you sure you gave Purchase Orders? </VAlertTitle>
+              <p class="mb-0">
+                The system is not retrieving the Purchase Histories from Purchase Orders. Please ensure that you have applied for Purchase Orders !</p>
+            </VAlert>
+          </VCardText>
+        </VCard>
+      </VCol>
+     </VRow>
+
+     <VTable v-if="this.filteredPurchaseHistory != null"
        :headers="headers"
-       :items="purchaseHistory"
+       :items="filteredPurchaseHistory"
         item-key="dessert"
       class="table-rounded"      
-       height="400"
+       height="500"
       fixed-header 
       >
        <thead>
@@ -22,8 +52,10 @@
 
       <tbody>
        <tr
-        v-for="(item,index) in purchaseHistory"
+        v-for="(item,index) in filteredPurchaseHistory"
         :key="index"
+
+         
       >       
         <td class="text-center">{{ item.po_number }}</td>
         <td class="text-center">
@@ -43,23 +75,25 @@
           {{ item.brand_name }}
         </td>
         <td class="text-center">
-          {{ item.protein }}
+          {{ item.brand_name }}
         </td>
         <td  class="text-center ">
-          {{item.actions}}
-            <!-- <VBtn
+          <!-- {{item.actions}} -->
+            <VBtn
                 icon
                 variant="text"
-                color="default"
+                color="success"
                 class="me-2"
-                size="x-small"
+                size="small"                
             >
+            <!-- Receive Stock -->
               <VIcon
               icon="bitcoin-icons:receive-filled"
               color="success"
               size="30"
+              @click="inputstock(item)"
               />
-            </VBtn> -->
+            </VBtn>
               <!-- <VBtn
                 icon
                 variant="text"
@@ -101,6 +135,7 @@ export default {
 
     data(){
         return{
+          loading:true,
     purchaseHistory:[],
     userIds:'',
     createdBy:'',
@@ -118,13 +153,30 @@ export default {
          ],
         }
     },
+     computed: {
+    filteredPurchaseHistory() {
+      // Filter purchaseHistory based on the condition
+      return this.purchaseHistory.filter(item => item.po_status === 'Acknowledged' || item.po_status === 'Shared');
+    }
+  },
     mounted(){
    
        this.createdBy = localStorage.getItem('createdby');
-        this.userIds = localStorage.getItem('userId');
-           this.getPurchasehistorydetails();
+       this.userIds = localStorage.getItem('userId');
+       this.getPurchasehistorydetails();
+           setTimeout(() => {
+              this.loading = false; // Set loading to false when the operation is complete
+            }, 4000);
     },
     methods:{
+      inputstock(itm){
+        console.log('check the detials',itm.po_id);
+         this.$router.push({
+          name: 'Createwarehouseinput', // Replace with the actual name of your route
+          query: { po_id: itm.po_id }
+        });
+        
+      },
       getPurchasehistorydetails(){
         this.getPurchaseorder(this.userIds,this.userRoles).then((response) =>{
           console.log('check the view purchase order',response.data);
