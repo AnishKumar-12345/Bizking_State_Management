@@ -88,7 +88,7 @@
             >
             <!-- Receive Stock -->
               <VIcon
-              icon="bitcoin-icons:receive-filled"
+              icon="mdi-invoice-receive-outline"
               color="success"
               size="30"
               @click="inputstock(item)"

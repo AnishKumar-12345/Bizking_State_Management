@@ -92,6 +92,23 @@ export default {
           .then(response => {
             return response.data;
           });
-        }
+        },
+        PostInputstock(reqdata){
+          return axios
+          .post(this.url +"bizkingz/services/api/warehouse/inputStock",reqdata, {
+            // withCredentials: true,
+            headers: {
+              "Content-Type": "application/json",
+         
+            }
+          })
+          .then(response => {
+            return response.data;
+          })
+          .catch(err => {
+            console.log('check tick',err);
+            return err.response;
+          });
+        },
     }
 }

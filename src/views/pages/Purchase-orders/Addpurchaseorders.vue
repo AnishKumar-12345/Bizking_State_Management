@@ -87,7 +87,7 @@
                 <!-- {{AllBrandproducts}} -->
       <VTable
        :headers="headers"
-       :items="AllBrandproducts"
+       :items="filteredBrandProducts"
         
       >
            
@@ -105,8 +105,9 @@
 
       <tbody>
        <tr
-        v-for="(item,index) in AllBrandproducts"
-        :key="index"
+        v-for="(item,index) in filteredBrandProducts"
+        :key="index"      
+        
       >
   
         <!-- <td class="text-center">{{ item.po }}</td> -->
@@ -121,8 +122,7 @@
         </td>
         <td class="text-center">
           <VTextField  @keydown="preventDecimal" @paste="preventPaste"   
-        v-model="item.quantity" type="number" min="1" max="10" style="min-width:80px;"
-     
+          v-model="item.quantity" type="number" min="1" style="min-width:80px;"     
          
           />
           
@@ -454,7 +454,11 @@ export default {
     }
    },
   
-     computed: {     
+     computed: {  
+        filteredBrandProducts() {
+      // Filter out items with undefined quantity
+       return this.AllBrandproducts.filter(item => item.quantity !== undefined);
+    },   
        totalIndividualAmount() {
           return this.AllBrandproducts.reduce((total, item) => {
           const MRPP = parseFloat(item.mrp);
@@ -494,10 +498,18 @@ export default {
       },
      allQuantity() {
       // Calculate the total quantity dynamically
-      const AllBproducts =  this.AllBrandproducts.reduce((total, item) => total + parseFloat(item.quantity), 0);
+    const AllBproducts = this.AllBrandproducts.reduce((total, item) => {
+    const quantity = parseFloat(item.quantity);
 
-      return isNaN(AllBproducts) ? 0 : AllBproducts.toFixed(0);
+    // Check if quantity is a valid number
+    if (!isNaN(quantity)) {
+      return total + quantity;
+    }
 
+    return total;
+  }, 0);
+
+  return isNaN(AllBproducts) ? 0 : AllBproducts.toFixed(0);
     },
       calculateTotalamount(){
          return this.AllBrandproducts.map((item,index) => {
@@ -624,7 +636,7 @@ export default {
     },
 
     preventDecimal(event) {     
-      if (event.key === '.' || event.key === ',' || event.keyCode === 189 || event.keyCode === 109) {
+      if (event.key === '.' || event.key === ',' ||  event.key === '+' ||  event.key === '-' || event.keyCode === 189 || event.keyCode === 109) {
         event.preventDefault();
       }
     },

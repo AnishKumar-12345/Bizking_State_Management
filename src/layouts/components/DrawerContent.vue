@@ -151,8 +151,6 @@ export default{
    methods: {
     toggleChildren(parentItem) {
       parentItem.expanded = !parentItem.expanded;  
-     
-      // this.selectedChild =  parentItem.id
        this.parentItems.forEach(item => {
         if (item !== parentItem) {
           item.expanded = false;

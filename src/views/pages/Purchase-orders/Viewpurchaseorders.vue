@@ -277,7 +277,7 @@
                               @keydown="preventDecimal"
                               @paste="preventPaste"
                               type="number"
-                              min="1" max="10"
+                              min="1" max="20000"
                               v-model="item.quantity"
                               style="min-width: 80px"
                             />
@@ -1008,11 +1008,20 @@ export default {
       const allTaxAmount = this.calculatedTaxableAmount.reduce((total, amount) => total + parseFloat(amount), 0)
       return parseFloat(allTaxAmount.toFixed(2))
     },
-    allQuantity() {
+      allQuantity() {
       // Calculate the total quantity dynamically
-      const AllBproducts = this.AllBrandproducts.reduce((total, item) => total + parseFloat(item.quantity), 0)
+    const AllBproducts = this.AllBrandproducts.reduce((total, item) => {
+    const quantity = parseFloat(item.quantity);
 
-      return isNaN(AllBproducts) ? 0 : AllBproducts.toFixed(0)
+    // Check if quantity is a valid number
+    if (!isNaN(quantity)) {
+      return total + quantity;
+    }
+
+    return total;
+  }, 0);
+
+  return isNaN(AllBproducts) ? 0 : AllBproducts.toFixed(0);
     },
     calculateTotalamount() {
       return this.AllBrandproducts.map((item, index) => {
@@ -1204,8 +1213,8 @@ export default {
     },
 
     preventDecimal(event) {
-      if (event.key === '.' || event.key === ',' || event.keyCode === 189 || event.keyCode === 109) {
-        event.preventDefault()
+     if (event.key === '.' || event.key === ',' ||  event.key === '+' ||  event.key === '-' || event.keyCode === 189 || event.keyCode === 109) {
+        event.preventDefault();
       }
     },
 

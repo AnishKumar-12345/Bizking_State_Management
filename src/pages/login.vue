@@ -51,7 +51,14 @@ const authThemeMask = computed(() => {
 const isPasswordVisible = ref(false)
 
 const loginuser = () => {
- 
+   if (!form.value.email || !form.value.password) {
+    snackbar.value = {
+      show: true,
+      message: 'Please give mandatory fields',
+      color: 'error',
+    };
+    return; // Stop the function execution
+  }
     const requestData = {
       email: form.value.email,
       password: form.value.password
