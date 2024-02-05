@@ -408,7 +408,11 @@ export default {
                     cgst: "",
                     sgst: "",
                     amount: "",
-                    total_give_margin: ""
+                    total_give_margin: "",
+                    sgst_percentage: "",
+                    cgst_percentage: "",
+                    margin_amount: "",
+
                 },
                 // ... additional products
             ]
@@ -459,24 +463,28 @@ export default {
       // Filter out items with undefined quantity
        return this.AllBrandproducts.filter(item => item.quantity !== undefined);
     },   
-       totalIndividualAmount() {
-          return this.AllBrandproducts.reduce((total, item) => {
-          const MRPP = parseFloat(item.mrp);
-          const quant = parseFloat(item.quantity);
-        const individualAmount = MRPP * quant;
-        console.log('check', total + individualAmount );
-          return total + individualAmount;
-        }, 0);
-          
-    
-      },
+     totalIndividualAmount() {
+  return this.AllBrandproducts.reduce((total, item) => {
+    const MRPP = parseFloat(item.mrp);
+    const quant = parseFloat(item.quantity);
+
+    // Check if MRPP and quant are valid numbers
+    if (!isNaN(MRPP) && !isNaN(quant)) {
+      const individualAmount = MRPP * quant;
+      return total + individualAmount;
+    }
+
+    return total;
+  }, 0);
+},
       savedamount() {
-        const totalSavings = this.totalIndividualAmount - parseFloat(this.allAmmount);
-        console.log('totalsave',totalSavings)
-        // return Math.max(0, totalSavings).toFixed(2);
-       return isNaN(totalSavings) ? 0 : Math.max(0, totalSavings).toFixed(2);
-        
-      },
+  // Parse the quantity and calculate total savings dynamically
+  const quantity = parseFloat(this.allAmmount);
+  const totalSavings = this.totalIndividualAmount - (isNaN(quantity) ? 0 : quantity);
+
+  // Return Math.max(0, totalSavings) formatted to 2 decimal places
+  return Math.max(0, totalSavings).toFixed(2);
+},
 
       allAmmount(){
          const AllAmount = this.calculateTotalamount.reduce((tot, amo) => tot + parseFloat(amo), 0);
@@ -509,7 +517,7 @@ export default {
     return total;
   }, 0);
 
-  return isNaN(AllBproducts) ? 0 : AllBproducts.toFixed(0);
+     return isNaN(AllBproducts) ? 0 : AllBproducts.toFixed(0);
     },
       calculateTotalamount(){
          return this.AllBrandproducts.map((item,index) => {
@@ -554,23 +562,24 @@ export default {
     });
   },
   calculatedTaxableAmount() {
-    // const rawPricePerUnit = this.calculatedPricePerUnit[index];
-    //     console.log("check PU",rawPricePerUnit);
     return this.AllBrandproducts.map((item, index) => {
-      // console.log("check item",item);
-      const quantitt = parseFloat(item.quantity);      
-      // console.log("check quan",quantitt);
-      const rawPricePerUnit = this.calculatedPricePerUnit[index];
-      const pricePerUnit = parseFloat(rawPricePerUnit);
+    const quantitt = parseFloat(item.quantity);
+    const rawPricePerUnit = this.calculatedPricePerUnit[index];
+    const pricePerUnit = parseFloat(rawPricePerUnit);
 
-        if (isNaN(pricePerUnit)) {
-          console.log(`Invalid value at index ${index}: ${rawPricePerUnit}`);
-          return 0; // or any default value
-        }
-  
-      const taxableAmount = quantitt * pricePerUnit;
-       return isNaN(taxableAmount) ? 0 : taxableAmount.toFixed(2);
-    });
+    // Skip calculation if quantity is 0
+    if (quantitt === 0) {
+      return 0;
+    }
+
+    if (isNaN(quantitt) || isNaN(pricePerUnit)) {
+      console.log(`Invalid quantity or price at index ${index}`);
+      return 0; // or any default value
+    }
+
+    const taxableAmount = quantitt * pricePerUnit;
+    return isNaN(taxableAmount) ? 0 : taxableAmount.toFixed(2);
+  });
   },
       
       brandNames() {
@@ -666,12 +675,15 @@ export default {
             "mrp": product.mrp,
             "quantity":`${product.quantity}`,
             "uom":product.uom,
+            "sgst_percentage":product.sgst.includes('%') ? `${product.sgst}` : `${product.sgst}%`,
+            "cgst_percentage":product.cgst.includes('%') ? `${product.cgst}` : `${product.cgst}%`,
             "price_per_unit": `${this.calculatedPricePerUnit[index]}`,
             "taxable_amount":`${this.calculatedTaxableAmount[index]}`,
             "csgt":`${this.calculatedCGSTAmount[index]}`,
             "sgst":`${this.calculatedSGSTAmount[index]}`,
             "amount":`${this.calculateTotalamount[index]}`,
-            "total_give_margin": product.total_given_margin
+            "total_give_margin": product.total_given_margin,
+            // "margin_amount": pr
           })),
         };
         console.log('check the post data',postData);

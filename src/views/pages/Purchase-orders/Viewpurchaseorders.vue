@@ -35,7 +35,7 @@
       :items="this.purchaseorders"
       item-key="dessert"
       class="table-rounded"
-      height="400"
+      height="550"
       fixed-header
     >
 
@@ -75,7 +75,7 @@
           <td class="text-center">{{ item.brand_name }}</td>
           <td class="text-center">{{ item.brand_name }}</td>
           <td class="text-center">&#8377;{{ item.total_po_amount }}</td>
-          <td class="text-center">
+          <td class="text-center" style="display:flex;justify-content:center;align-items:center;">
             <VBtn
               v-if="item.po_status != 'Acknowledged' && item.po_status != 'Shared'"
               icon
@@ -118,6 +118,38 @@
                 color="success"
                 icon="basil:eye-outline"
                 size="22"
+              />
+            </VBtn>
+<!-- {{item.po_id}} -->
+             <!-- <VBtn
+             v-if="item.po_status == 'Acknowledged' || item.po_status == 'Shared'"
+              icon
+              variant="text"
+              color="default"
+              class="me-2"
+              size="x-small"
+              @click="DownloadPDF(item.purchase_order_file)"
+            >
+              <VIcon
+                color="error"
+                icon="iwwa:file-pdf"
+                size="26"
+              />
+            </VBtn> -->
+            <VBtn
+
+             v-if="item.po_status == 'Acknowledged' || item.po_status == 'Shared'"
+              icon
+              variant="text"
+              color="default"
+              class="me-2"
+              size="x-small"
+              @click="getPDFupdate(item.po_id)"
+            >
+              <VIcon
+                color="error"
+                icon="iwwa:file-pdf"
+                size="26"
               />
             </VBtn>
           </td>
@@ -277,7 +309,7 @@
                               @keydown="preventDecimal"
                               @paste="preventPaste"
                               type="number"
-                              min="1" max="20000"
+                              min="0" max="20000"
                               v-model="item.quantity"
                               style="min-width: 80px"
                             />
@@ -977,21 +1009,27 @@ export default {
   },
   computed: {
     totalIndividualAmount() {
-      return this.AllBrandproducts.reduce((total, item) => {
-        const MRPP = parseFloat(item.mrp)
-        const quant = parseFloat(item.quantity)
-        const individualAmount = MRPP * quant
-        console.log('check', total + individualAmount)
-        return total + individualAmount
-      }, 0)
-    },
-    savedamount() {
-      const totalSavings = this.totalIndividualAmount - parseFloat(this.allAmmount)
-      console.log('totalsave', totalSavings)
-      // return Math.max(0, totalSavings).toFixed(2);
-      return isNaN(totalSavings) ? 0 : Math.max(0, totalSavings).toFixed(2)
-    },
+  return this.AllBrandproducts.reduce((total, item) => {
+    const MRPP = parseFloat(item.mrp);
+    const quant = parseFloat(item.quantity);
 
+    // Check if MRPP and quant are valid numbers
+    if (!isNaN(MRPP) && !isNaN(quant)) {
+      const individualAmount = MRPP * quant;
+      return total + individualAmount;
+    }
+
+    return total;
+  }, 0);
+},
+      savedamount() {
+  // Parse the quantity and calculate total savings dynamically
+  const quantity = parseFloat(this.allAmmount);
+  const totalSavings = this.totalIndividualAmount - (isNaN(quantity) ? 0 : quantity);
+
+  // Return Math.max(0, totalSavings) formatted to 2 decimal places
+  return Math.max(0, totalSavings).toFixed(2);
+},
     allAmmount() {
       const AllAmount = this.calculateTotalamount.reduce((tot, amo) => tot + parseFloat(amo), 0)
       return parseFloat(AllAmount.toFixed(2))
@@ -1066,26 +1104,29 @@ export default {
       })
     },
     calculatedTaxableAmount() {
-      // const rawPricePerUnit = this.calculatedPricePerUnit[index];
-      //     console.log("check PU",rawPricePerUnit);
       return this.AllBrandproducts.map((item, index) => {
-        // console.log("check item",item);
-        const quantitt = parseFloat(item.quantity)
-        // console.log("check quan",quantitt);
-        const rawPricePerUnit = this.calculatedPricePerUnit[index]
-        const pricePerUnit = parseFloat(rawPricePerUnit)
+        const quantitt = parseFloat(item.quantity);
+        console.log("quantty",quantitt);
 
-        if (isNaN(pricePerUnit)) {
-          console.log(`Invalid value at index ${index}: ${rawPricePerUnit}`)
-          return 0 // or any default value
+        const rawPricePerUnit = parseFloat(this.calculatedPricePerUnit[index]);
+        console.log('rawpriceunit',rawPricePerUnit);
+        const pricePerUnit = parseFloat(rawPricePerUnit);
+        console.log('rawpriceunit',pricePerUnit);
+
+
+        if (isNaN(quantitt) || isNaN(pricePerUnit)) {
+          console.log(`Invalid quantity or price at index ${index}`);
+          return 0; // or any default value
         }
 
-        const taxableAmount = quantitt * pricePerUnit
-        return isNaN(taxableAmount) ? 0 : taxableAmount.toFixed(2)
-      })
+        const taxableAmount = quantitt * pricePerUnit;
+        console.log('total tax',taxableAmount);
+        return isNaN(taxableAmount) ? 0 : taxableAmount.toFixed(2);
+      });
     },
   },
   mounted() {
+   
     this.createdBy = localStorage.getItem('createdby')
     this.userIds = localStorage.getItem('userId')
     this.userRoles = localStorage.getItem('userRole')
@@ -1097,6 +1138,27 @@ export default {
     //  this.loading = false;
   },
   methods: {
+     getPDFupdate(id){
+      this.getPurchasePDF(id).then((response)=>{
+        console.log(response)
+        const pdfUrl = response.data.po_file;
+         window.open(pdfUrl, '_blank');
+      })
+    },
+
+    DownloadPDF(id){
+    console.log('check the id', id);
+    if(id == undefined){
+            this.snackbar = true
+            this.snackbarText = 'PDF is not available'
+            this.color = 'error'
+    }else{
+      const pdfUrl = id;
+      window.open(pdfUrl, '_blank');
+    }
+     
+     
+    },
     closedialog2() {
       this.dialog2 = false
     },
@@ -1147,6 +1209,7 @@ export default {
         total_po_amount: `${this.allAmmount}`,
         total_quantity: `${this.allQuantity}`,
         po_id: this.productData.po_id,
+        // purchase_order_file:''
         po_number: this.productData.po_number,
         products: this.AllBrandproducts.filter(product => product.quantity > 0)
           .map((product, index) => ({
@@ -1161,6 +1224,8 @@ export default {
             csgt: `${this.calculatedCGSTAmount[index]}`,
             sgst: `${this.calculatedSGSTAmount[index]}`,
             amount: `${this.calculateTotalamount[index]}`,
+            sgst_percentage:product.sgst.includes('%') ? `${product.sgst}` : `${product.sgst}%`,
+            cgst_percentage:product.cgst.includes('%') ? `${product.cgst}` : `${product.cgst}%`,
             total_give_margin: product.total_given_margin,
           }))
           .concat(
@@ -1287,7 +1352,7 @@ export default {
       this.productData.po_status = itm.po_status
       this.productData.po_number = itm.po_number
       this.productData.po_id = itm.po_id
-      this.editProduct = itm.products
+      this.editProduct = itm.products;
 
       // if(itm.)
       if (this.productData.brand_name === itm.brand_name) {

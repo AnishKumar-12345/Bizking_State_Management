@@ -110,5 +110,53 @@ export default {
             return err.response;
           });
         },
+        getSalesorders(){
+          return axios
+          .get(this.url +"bizkingz/services/api/sales/getSalesOrders", {
+            headers: {
+              "Content-Type": "application/json",
+              "accept": "*/*",
+            //   "Authorization": "Bearer "+token
+            }
+          })
+          .then(response => {
+            return response.data;
+          })
+          .catch(err => {
+            console.log('check tick',err);
+            return err.response;
+          });
+        },
+        getOutputstock(request){
+          return axios
+          .get(this.url +"bizkingz/services/api/sales/getSalesOrderDetails?so_id="+request, {
+            headers: {
+              "Content-Type": "application/json",
+              "accept": "*/*",
+            //   "Authorization": "Bearer "+token
+            }
+          })
+          .then(response => {
+            return response.data;
+          });
+        },
+        getPurchasePDF(reqbody){
+          return axios
+          .get(this.url +"bizkingz/services/api/purchase/createPopdf?po_id="+reqbody, {
+            headers: {
+              "accept": "*/*",
+              "Content-Type": "application/json",
+              
+            },
+            // responseType: 'blob',
+          })
+          .then(response => {
+            return response;
+            // responseType: 'blob',
+          })
+          .catch(err => {
+            return err.response;
+          });
+        }
     }
 }

@@ -10,7 +10,7 @@
         placeholder="Enter search query"
       />
     </div> -->
-    <div style="max-width:400px">
+    <!-- <div style="max-width:400px">
       <VTextField
       class="mb-3"
         v-model="searchQuery"  
@@ -23,13 +23,13 @@
         hide-details
         @click:append-inner="onClick" 
     />
-    </div>
-<VTable
+    </div> -->
+   <VTable 
        :headers="headers"
-       :items="desserts"
-        item-key="dessert"
-       class="table-rounded"      
-       height="400"
+       :items="saleshistory"
+       
+      class="table-rounded"      
+       height="500"
       fixed-header 
       >
        <thead>
@@ -46,47 +46,52 @@
 
       <tbody>
        <tr
-        v-for="item in desserts"
-        :key="item.dessert"
-      >     
-        <td class="text-center">{{ item.salesorder }}</td>
+        v-for="(item,index) in saleshistory"
+        :key="index"
 
-        <td class="text-center">{{ item.orderdate }}</td>
+         
+      >       
+        <td class="text-center">{{ item.so_number }}</td>
         <td class="text-center">
-          {{ item.status }}
+          {{ item.created_date }}
         </td>
         <td class="text-center">
-           <!-- <VChip
-        :color="resolveStatusVariant(item.fat).color"
+           <VChip
+        :color="resolveStatusVariant(item.so_status).color"
         class="font-weight-medium"
         size="small"
-      > -->
-        <!-- {{ resolveStatusVariant(item.fat).text }} -->
-          {{ item.orderfrom }}
-            <!-- </VChip> -->
+      >
+        {{ item.so_status }}
+          <!-- {{ item.fat }} -->
+            </VChip>
         </td>
         <td class="text-center">
-          {{ item.shippedto }}
+          {{ item.merchant_name }}
         </td>
         <td class="text-center">
-            &#8377;{{ item.ordervalue }}
+          {{ item.merchant_name }}
         </td>
-        <td  class="text-center" style="display: flex;align-items: center;">
-          
-            <!-- <VBtn
+           <td class="text-center">
+          {{ item.total_so_amount }}
+        </td>
+        <td  class="text-center ">
+          <!-- {{item.actions}} -->
+            <VBtn
                 icon
                 variant="text"
-                color="default"
+                color="success"
                 class="me-2"
-                size="x-small"
+                size="small"                
             >
+            <!-- Receive Stock -->
               <VIcon
-              icon="bitcoin-icons:receive-filled"
+              icon="mdi-invoice-receive-outline"
               color="success"
               size="30"
+              @click="outputstock(item)"
               />
-            </VBtn> -->
-             <VBtn
+            </VBtn>
+              <!-- <VBtn
                 icon
                 variant="text"
                 color="default"
@@ -111,7 +116,7 @@
                 icon="ri-delete-bin-line"
                 size="22"
                 />
-            </VBtn> 
+            </VBtn> -->
           </td>
       </tr>
       </tbody>        
@@ -120,84 +125,16 @@
 </template>
 
 <script>
+import servicescall from '@/Services'
+
 export default {
+  mixins: [servicescall],
+
     data(){
         return{
             loaded: false,
-      loading: false,
-       desserts: [
-            {
-                salesorder: 'SO1',
-                orderdate: '19-01-2024',
-                status: 'Acknowledged',
-                orderfrom: 'A One mart',
-                shippedto: 'Ams Mini Mart',
-                ordervalue: '10000'
-
-            },
-            {
-                salesorder: 'SO2',
-                orderdate: '19-01-2024',
-                status: 'Acknowledged',
-              orderfrom: 'A One mart',
-                shippedto: 'Aishwary Super Market-Hsr',
-                ordervalue: '20000'
-
-            },
-            {
-                salesorder: 'SO3',
-                orderdate: '19-01-2024',
-                status: 'Acknowledged',
-               orderfrom: 'A To Z Mini Mart',
-                shippedto: 'Aishwarya Hyper Mart',
-                ordervalue: '11000'
-
-            },
-            {
-               salesorder: 'SO4',
-                orderdate: '19-01-2024',
-                status: 'Acknowledged',
-                orderfrom: 'A.M. Enterpirses-Bellandur',
-                shippedto: 'ALV Fresh Super Market',
-                ordervalue: '320000'
-
-            },
-            {
-               salesorder: 'SO5',
-                orderdate: '19-01-2024',
-                status: 'Acknowledged',
-               orderfrom: 'A2Z Shopping Mall',
-                shippedto: 'Annapureneshwari Enteprises',
-                ordervalue: '200000'
-
-            },
-              {
-                salesorder: 'SO6',
-                orderdate: '19-01-2024',
-                status: 'Acknowledged',
-             orderfrom: 'Adak Enterprises',
-                shippedto: 'Bangalore Horticultural Fruit And Vegetables Sales Centre',
-                ordervalue: '1000000'
-
-            },
-              {
-              salesorder: 'SO7',
-                orderdate: '19-01-2024',
-                status: 'Acknowledged',
-                orderfrom: 'Adak Enterprises',
-                shippedto: 'Bangalore Home Needs Departmental Stores',
-                ordervalue: '10000'
-
-            },
-              {
-                salesorder: 'SO8',
-                orderdate: '19-01-2024',
-                status: 'Acknowledged',
-                orderfrom: 'A2Z Shopping Mall',
-                shippedto: 'Aishwary Super Market-Hsr',
-                ordervalue: '210000'
-            },
-    ],
+       loading: false,
+     saleshistory:[],
       headers: [
         
         { text: 'Sales Order', value: 'salesorder' },
@@ -210,7 +147,39 @@ export default {
       ],
         }
     },
+    mounted(){
+      this.getSalesorderdetails();
+    },
     methods:{
+      outputstock(item){
+          console.log('check the detials',item.so_id);
+         this.$router.push({
+          name: 'Createwarehouseoutput', // Replace with the actual name of your route
+          query: { so_id: item.so_id }
+        });
+      },
+         resolveStatusVariant (status){
+      if (status == 'Acknowledged')
+        return {
+          color: 'success',
+          // text: 'Acknowledged',
+        }
+     
+      
+        
+      else
+        return {
+          color: 'info',
+          // text: 'Shared',
+        }
+      },
+      getSalesorderdetails(){
+        this.getSalesorders().then((response)=>{
+          this.saleshistory = response.data;
+          console.log('check rhe res',this.saleshistory);
+
+        })
+      },
        onClick () {
         this.loading = true
 

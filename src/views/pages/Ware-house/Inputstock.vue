@@ -8,7 +8,7 @@
         >
           <VCardText>
             <!-- 👉 Form -->
-            <VForm class="mt-6">
+            <VForm class="mt-6"  ref="purchaseOrderForm">
               <VRow>
                 <VCol
                   md="6"
@@ -83,24 +83,45 @@
                           {{ item.quantity }}
                         </td>
                         <td class="text-center">
+                      
                           <VTextField
+                          
                             v-model="item.received_quantity"
                             outlined
                             dense
+                             @keydown="preventDecimal"
+                              @paste="preventPaste"
+                              type="number"
+                              min="0" 
+                              :max="item.quantity"
+                              
+                              :rules="receivedquantity"
+                             
                           />
+                           <span v-if="isQuantityExceeded(item.received_quantity,item.quantity)" >
+                           
+                          </span>
                         </td>
                         <td class="text-center">
                           <VTextField
+                           @keydown="preventDecimal"
+                              @paste="preventPaste"
+                              type="number"
+                              min="0" max="20000"
                             v-model="item.rtm"
                             outlined
                             dense
+                            required
+                       
                           />
                         </td>
                         <td class="text-center">
-                          <VTextField
+                          <VTextField                   
                              v-model="item.remarks"
                             outlined
                             dense
+                            required
+                     
                           />
                         </td>
                       </tr>
@@ -111,7 +132,7 @@
                   cols="12"
                   class="d-flex flex-wrap gap-4"
                 >
-                  <VBtn @click="saveInputstock">Save</VBtn>
+                  <VBtn @click="validateForm()">Save</VBtn>
 
                   <VBtn
                     color="secondary"
@@ -148,6 +169,10 @@ export default {
   props: ['po_id'],
   data() {
     return {
+      receivedquantity: [(v) => v === 0 || (!!v && `${v}`.trim() !== '') || 'Received Quantity Is Required'],
+       rtm: [v => !!v || 'RTM Is Required'],
+
+       remarks: [v => !!v || 'remarks Is Required'],
       snackbar: false,
       snackbarText: '',
       timeout: 6000, // milliseconds
@@ -222,6 +247,7 @@ export default {
       }
       return this.desserts.filter(item => item.purchaseOrder === this.selectedPurchaseOrder)
     },
+    
   },
 
   mounted() {
@@ -231,6 +257,51 @@ export default {
   },
 
   methods: {
+     isQuantityExceeded(itm,data) {
+      // return itm > data;
+      if(itm > data){
+        this.snackbar = true;
+        this.color = "error";
+        this.snackbarText = "Received quantity cannot exceed item quantity."
+      }
+    },
+    preventPaste(event) {
+      const clipboardData = event.clipboardData || window.clipboardData
+      const pastedData = clipboardData.getData('text')
+
+      // Validate pasted data (you can modify this regex as needed)
+      const isValid = /^[0-9]+$/.test(pastedData)
+
+      if (!isValid) {
+        event.preventDefault()
+      }
+    },
+
+     preventDecimal(event) {
+     if (event.key === '.' || event.key === ',' ||  event.key === '+' ||  event.key === '-' || event.keyCode === 189 || event.keyCode === 109) {
+        event.preventDefault();
+      }
+    },
+validateForm(){
+   this.$refs.purchaseOrderForm.validate().then(valid => {
+        console.log("form valid", valid.valid);
+        if (valid.valid == true) {
+          // this.saveData();
+          // if(this.allQuantity >=1){   
+          //    this.saveData();
+          // }else{
+          //   this.snackbar = true;
+          //   this.snackbarText = "Please give Quantities"
+          //   this.color = "error";
+          // }
+          this.saveInputstock();
+        }else{
+           this.snackbar = true;
+            this.snackbarText = "Please give all mandatory fields"
+            this.color = "error";
+        }
+      }); 
+},
     saveInputstock(){
         const postData = {
           "brand_id":  this.inputStock.brand_id,
@@ -241,24 +312,44 @@ export default {
                   "received_quantity": product.received_quantity,
                   "rtm": product.rtm,
                   "remarks": product.remarks,
+                  "quantity":  product.quantity,
           })),
         };
         console.log('check the post data',postData);
-        this.PostInputstock(postData).then((response) =>{
-          console.log('check the response',response);
-          console.log('check the response',response.status);
-            if (response.status == 1) {              
-               this.snackbar = true;
-               this.color = "success";
-               this.formData = {};
-               this.snackbarText = response.message;  
-               this.getInputstockdetails();  
-            } else {          
-                 this.snackbar = true;
-                 this.color = "error";
-              };
-           
-        })
+   const validationErrors = postData.products.filter(product => {
+    // console.log("take", parseInt(product.rtm) > parseInt(product.quantity))
+        return (
+          
+            this.isQuantityExceeded(product.received_quantity, product.quantity) ||
+            parseInt(product.rtm) > parseInt(product.quantity) || // Ensure both are integers for proper comparison
+            parseInt(product.rtm) >= parseInt(product.received_quantity) ||
+            (parseInt(product.received_quantity) === 0 && parseInt(product.rtm) > parseInt(product.quantity))
+            
+        );
+    });
+
+      if (validationErrors.length === 0) {
+      this.PostInputstock(postData).then((response) =>{
+                console.log('check the response',response);
+                console.log('check the response',response.status);
+                  if (response.status == 1) {              
+                    this.snackbar = true;
+                    this.color = "success";
+                    this.formData = {};
+                    this.snackbarText = response.message;  
+                    this.getInputstockdetails();  
+                  } else {          
+                      this.snackbar = true;
+                      this.color = "error";
+                    };
+                
+              })
+      }else{
+          this.snackbar = true;
+                      this.color = "error";
+                      this.snackbarText = "your quantities are exceeded"; 
+      }
+            
     },
     getFormattedDate(date) {
       const year = date.getFullYear()
@@ -270,7 +361,7 @@ export default {
     getInputstockdetails() {
       this.getInputstock(this.PoId).then(response => {
         this.InputStockDetails = response.data
-        console.log('check input dtock', response)
+        console.log('check input dtock', this.InputStockDetails)
 
         this.InputStockDetails.forEach(item => {
           this.inputStock.brand_id = item.brand_id

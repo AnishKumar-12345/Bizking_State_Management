@@ -13,10 +13,10 @@
                 md="6"
                 cols="12"
               >
-                <VSelect
-                  v-model="selectedPurchaseOrder"
+                <VTextField
+                  v-model=" this.outputStock.so_number"
                   label="Sales Order"
-                  :items="['SO1', 'SO2', 'SO3','SO4','SO5']"
+                readonly
                 />
                
               </VCol>
@@ -28,9 +28,9 @@
                 md="6"
               >
                 <VTextField
-                
+                v-model="this.outputStock.merchant_name"
                   label="Order From"
-               
+               readonly
                 />
               </VCol>
       
@@ -39,8 +39,12 @@
                 md="6"
               >
                 <VTextField
-                
-                  label="Date"
+                  v-model="this.outputStock.shipped_date"
+                   type="date"
+                    label="Date"
+                    :min="today"
+                   
+                    readonly
                 />
               </VCol>
             
@@ -49,16 +53,17 @@
                 cols="12"
               >
                 <VSelect
-                 
+                 v-model="this.outputStock.so_status"
                   label="SO Status"
-                    :items="['Draft','Created','Shared','Acknowledged','Received','Close']"
+                  readonly
+                    :items="['Draft','Created','Shared','Acknowledged']"
                 />
               </VCol>
               <VCol cols="12">
                 
               <VTable
               :headers="headers"
-              :items="desserts"
+              :items="OutputStockDetails"
                 
               >
               <thead>
@@ -75,15 +80,15 @@
 
       <tbody>
        <tr
-        v-for="item in filteredDesserts"
-        :key="item.id"
+        v-for="(item,index) in this.outputStockproducts"
+        :key="index"
       >
-       <td  class="text-center">
+       <!-- <td  class="text-center">
            {{item.id}}
-          </td>
-        <td class="text-center">{{ item.EQuantity }}</td>
+          </td> -->
+        <td class="text-center">{{ item.exchange_quantity }}</td>
         <td class="text-center">
-          {{ item.OQuantity }}
+          {{ item.ordered_quantity }}
         </td>
         <td class="text-center">
           <VChip
@@ -91,7 +96,7 @@
         class="font-weight-medium"
         size="small"
       >
-        {{ item.available }}
+        {{ item.warehouse_quantity }}
       </VChip>
           <!-- {{ item.available }} -->
         </td>
@@ -137,69 +142,55 @@
     </div>
 </template>
 <script>
+import servicescall from '@/Services'
 export default {
+    mixins: [servicescall],
+     props: ['so_id'],
    data(){
     return{
       selectedPurchaseOrder: null,
         dialog: false,
-     desserts: [
-         {
-          id:1,
-        oid:"SO1",
+    Soid:'',
+    OutputStockDetails:[],
+    today: this.getFormattedDate(new Date()),
+      outputStock: {
+        "so_id": "",
+        "so_number": "",
+        "merchant_id": "",
+        "merchant_code": "",
+        "merchant_name": "",
+        "total_cgst": "",
+        "total_sgst": "",
+        "sub_total": "",
+        "total_margin": "",
+        "total_so_amount": "",
+        "total_quantity": "",
+        "created_date": "",
+        "shipped_date": this.getFormattedDate(new Date()),
+        "so_status": "",
+        "products": [
+            {
+                "merchant_product_id": "",
+                "sku_name": "",
+                "hsn_code": "",
+                "mrp": "",
+                "margin": "",
+                "ordered_quantity": "",
+                "warehouse_quantity": "",
+                "uom": "",
+                "price_per_unit": "",
+                "taxable_amount": "",
+                "cgst": "",
+                "sgst": "",
+                "amount": "",
+                "shipping_quantity":""
+            },          
+        ]
 
-        // dessert: 'Frozen Yogurt',
-        EQuantity: 159,
-        OQuantity: 6,
-        available: 24,
-        shipped: 22,
-        // purchaseOrder: 'SO1'
       },
-      {
-        id:2,
-        oid:"SO2",
-
-        // dessert: 'Ice cream sandwich',
-        EQuantity: 237,
-        OQuantity: 6,
-        available: 24,
-        shipped: 20,
-        // purchaseOrder: 'SO2'
-      },
-      {
-        id:3,
-        oid:"SO3",
-
-        // dessert: 'Eclair',
-        EQuantity: 262,
-        OQuantity: 6,
-        available: 3,
-        shipped: 2,
-        // purchaseOrder: 'SO3'
-      },
-      {
-        id:4,
-        oid:"SO4",
-        // dessert: 'Cupcake',
-        EQuantity: 305,
-        OQuantity: 6,
-        available: 15,
-        shipped: 7,
-        // purchaseOrder: 'SO4'
-      },
-      {
-        id:5,
-        oid:"SO5",
-
-        // dessert: 'Gingerbread',
-        EQuantity: 356,
-        OQuantity: 6,
-        available: 17,
-        shipped: 10,
-        // purchaseOrder: 'SO5'
-      },
-      ],
+      outputStockproducts:[],
       headers: [
-        { text: 'Product ID', value: 'id'},
+        // { text: 'Product ID', value: 'id'},
         { text: 'Exchange Quantity', value: 'EQuantity' },
         { text: 'Ordered Quantity', value: 'OQuantity' },
         { text: 'Available', value: 'available' },
@@ -208,18 +199,53 @@ export default {
       ],
     }
    },
-   computed: {
-  filteredDesserts() {
-    if (!this.selectedPurchaseOrder) {
-      // return this.desserts; 
-    }
 
-    return this.desserts.filter(item => item.oid === this.selectedPurchaseOrder);
-  },
+   computed: {
+  // filteredDesserts() {
+  //   if (!this.selectedPurchaseOrder) {
+  //     // return this.desserts; 
+  //   }
+
+  //   return this.desserts.filter(item => item.oid === this.selectedPurchaseOrder);
+  // },
+},
+mounted(){  
+    this.Soid = this.$route.query.so_id
+    console.log('Received po_id:', this.Soid);
+    this.getOutputstockdetails();
 },
    methods:{
+
+   getFormattedDate(date) {
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
+    },
+
+        getOutputstockdetails() {
+        this.getOutputstock(this.Soid).then(response => {
+        this.OutputStockDetails = response.data
+         console.log('check output dtock', this.OutputStockDetails.so_number);
+         
+      this.outputStock.so_number = this.OutputStockDetails.so_number;
+        this.outputStock.merchant_name = this.OutputStockDetails.merchant_name;
+        this.outputStock.so_status = this.OutputStockDetails.so_status;
+        this.outputStockproducts = this.OutputStockDetails.products;
+//  if (Array.isArray(this.OutputStockDetails)) {
+//       this.OutputStockDetails.forEach(item => {
+  
+
+//         console.log('OutputStockDetails', this.OutputStockDetails);
+//       });
+//     } else {
+//       console.error('OutputStockDetails is not an array:', this.OutputStockDetails);
+//     }      
+    })
+    },
+
      resolveStatusVariant (itm){
-      if (itm.available < itm.OQuantity)
+      if (itm.warehouse_quantity < itm.ordered_quantity)
         return {
           color: 'error',
           // text: 'Created',
