@@ -47,7 +47,7 @@
                 <VTextField
                   v-model="formData.created_date"
                   type="date"
-                  label="Date"
+                  label="Order Date"
                   :min="today"
                   :rules="dateRules"
                   readonly
@@ -62,10 +62,24 @@
                 <VSelect
                   v-model="formData.po_status"
                   label="PO Status"
-                  :items="['Draft','Created','Shared','Acknowledged']"
+                  :items="['Draft','Created','Shared','Acknowledged','Received']"
                   :rules="Statusrules"           
                 />
               </VCol>
+               <VCol
+                md="6"
+                cols="12"
+              >
+              <!-- {{formData.po_status}}  -->
+                 <VTextField
+                  v-model="formData.delivery_date"
+                  type="date"
+                  label="Delivery Date"
+                  :min="today"
+                  :rules="dateRules"
+                 
+                />
+               </VCol>
               <VDivider />
                   <!-- <V-btn
                   icon
@@ -388,6 +402,7 @@ export default {
             brand_id: "",
             user_id: "",
             created_date: this.getFormattedDate(new Date()),
+            delivery_date: "",
             po_status: "",
             total_cgst: "",
             total_sgst: "",
@@ -652,15 +667,17 @@ export default {
      saveData(){
         console.log('check the CGST Amount',this.allCGSTAmount);
         const statusMapping = {
-            'Draft': "1",
-            'Created': "2",
-            'Shared': "3",
-            'Acknowledged': "4",
+            'Draft': 1,
+            'Created': 2,
+            'Shared': 3,
+            'Acknowledged': 4,
+            'Received': 5,
           };
         const postData = {
           "brand_id": this.selectedBrandId,
           "user_id": this.userIds,
           "created_date": this.formData.created_date,
+          "delivery_date": this.formData.delivery_date,
           "po_status": statusMapping[this.formData.po_status],
           "total_cgst": `${this.allCGSTAmount}`,
           "total_sgst": `${this.allSGSTAmount}`,
@@ -674,7 +691,7 @@ export default {
             "hsn_code": product.hsn_code,
             "mrp": product.mrp,
             "quantity":`${product.quantity}`,
-            "uom":product.uom,
+            "uom":`${product.uom}`,
             "sgst_percentage":product.sgst.includes('%') ? `${product.sgst}` : `${product.sgst}%`,
             "cgst_percentage":product.cgst.includes('%') ? `${product.cgst}` : `${product.cgst}%`,
             "price_per_unit": `${this.calculatedPricePerUnit[index]}`,

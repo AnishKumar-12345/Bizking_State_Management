@@ -16,9 +16,10 @@
                 >
                   <!-- :items="['PO1', 'PO2', 'PO3','PO4','PO5']" -->
 
-                  <VSelect
+                  <VTextField
                     v-model="this.inputStock.po_number"
                     label="Purchase Order"
+                    readonly
                   />
                 </VCol>
 
@@ -29,6 +30,7 @@
                   <VTextField
                     v-model="this.inputStock.brand_name"
                     label="Order To"
+                    readonly
                   />
                 </VCol>
 
@@ -50,13 +52,16 @@
                   md="6"
                   cols="12"
                 >
+                <!-- {{this.inputStock.po_status}} -->
                   <VSelect
                     v-model="this.inputStock.po_status"
                     label="PO Status"
                     :items="['Draft', 'Created', 'Shared', 'Acknowledged', 'Received', 'Close']"
+                    
                   />
                 </VCol>
                 <VCol cols="12">
+
                   <VTable
                     :headers="headers"
                     :items="InputStockDetails"
@@ -79,13 +84,14 @@
                         :key="index"
                       >
                         <td class="text-center">{{ item.sku_name }}</td>
+                             <td class="text-center">{{ item.uom }}</td>
                         <td class="text-center">
                           {{ item.quantity }}
                         </td>
                         <td class="text-center">
-                      
+                      <!-- {{item.received_quantity}} -->
                           <VTextField
-                          
+                       
                             v-model="item.received_quantity"
                             outlined
                             dense
@@ -93,8 +99,7 @@
                               @paste="preventPaste"
                               type="number"
                               min="0" 
-                              :max="item.quantity"
-                              
+                              :max="item.quantity"                              
                               :rules="receivedquantity"
                              
                           />
@@ -103,17 +108,23 @@
                           </span>
                         </td>
                         <td class="text-center">
+                          <!-- {{item.rtm}} -->
                           <VTextField
+                       
                            @keydown="preventDecimal"
                               @paste="preventPaste"
                               type="number"
-                              min="0" max="20000"
+                              min="0"
+                               max="20000"
                             v-model="item.rtm"
                             outlined
                             dense
                             required
                        
                           />
+                         <!-- <span v-if="isrtmQuantityExceeded(item.received_quantity,item.quantity,item.rtm)" >
+                           
+                          </span> -->
                         </td>
                         <td class="text-center">
                           <VTextField                   
@@ -127,6 +138,7 @@
                       </tr>
                     </tbody>
                   </VTable>
+
                 </VCol>
                 <VCol
                   cols="12"
@@ -170,9 +182,8 @@ export default {
   data() {
     return {
       receivedquantity: [(v) => v === 0 || (!!v && `${v}`.trim() !== '') || 'Received Quantity Is Required'],
-       rtm: [v => !!v || 'RTM Is Required'],
-
-       remarks: [v => !!v || 'remarks Is Required'],
+      //  rtm: [v => !!v || 'RTM Is Required'],
+      //  remarks: [v => !!v || 'remarks Is Required'],
       snackbar: false,
       snackbarText: '',
       timeout: 6000, // milliseconds
@@ -213,6 +224,8 @@ export default {
           "brand_id": "",
           "stock_updated_date": this.getFormattedDate(new Date()),
           "received_quantity":'',
+          "po_status":'',
+          "po_id":'',
           "remarks":'',
           "rtm":'',
           "products": [
@@ -233,10 +246,13 @@ export default {
       headers: [
         // { text: 'Product ID', value: 'po_number'},
         { text: 'Product Name', value: 'brand_name' },
+         { text: 'UOM', value: 'uom' },
         { text: 'Ordered Quantity', value: 'quantity' },
         { text: 'Received Quantity', value: 'quantity' },
         { text: 'RTM', value: 'carbs' },
         { text: 'Remarks', value: 'protein' },
+       
+
       ],
     }
   },
@@ -257,6 +273,14 @@ export default {
   },
 
   methods: {
+    isrtmQuantityExceeded(itm,data,text){
+      console.log("check valids",data,text)
+       if(text > data ){
+        this.snackbar = true;
+        this.color = "error";
+        this.snackbarText = "RTM quantity cannot exceed item quantity."
+      }
+    },
      isQuantityExceeded(itm,data) {
       // return itm > data;
       if(itm > data){
@@ -282,6 +306,7 @@ export default {
         event.preventDefault();
       }
     },
+
 validateForm(){
    this.$refs.purchaseOrderForm.validate().then(valid => {
         console.log("form valid", valid.valid);
@@ -301,33 +326,62 @@ validateForm(){
             this.color = "error";
         }
       }); 
-},
+ },
+
     saveInputstock(){
+       const statusMapping = {
+            'Draft': 1,
+            'Created': 2,
+            'Shared': 3,
+            'Acknowledged': 4,
+            'Received': 5
+          };
         const postData = {
+          "brand_name": this.inputStock.brand_name,
+          "po_number": this.inputStock.po_number,
           "brand_id":  this.inputStock.brand_id,
-          "stock_updated_date": this.inputStock.stock_updated_date,          
-          "products": this.inputStockproducts.filter(product => product.received_quantity > 0).map((product,index) => ({
-            "brand_id": this.inputStock.brand_id,
+          "stock_updated_date": this.inputStock.stock_updated_date, 
+          "recieved_date": this.inputStock.stock_updated_date,
+          "po_id": this.inputStock.po_id,
+          "po_status":statusMapping[this.inputStock.po_status],         
+          "products": this.inputStockproducts.map((product,index) => ({
+            // "brand_id": this.inputStock.brand_id,
                   "brand_product_id": product.brand_product_id,
-                  "received_quantity": product.received_quantity,
-                  "rtm": product.rtm,
+                  "received_quantity": `${product.received_quantity}`,
+                  "rtm": `${product.rtm}`,
+                  "sku_name": product.sku_name,
                   "remarks": product.remarks,
                   "quantity":  product.quantity,
+                  "hsn_code": product.hsn_code,
+                  "mrp": product.mrp,
+                  "uom": product.uom,
+                  "price_per_unit": product.price_per_unit,
+                  "taxable_amount": product.taxable_amount,
+                  "csgt": product.csgt,
+                  "sgst": product.sgst,
+                  "amount": product.amount,
+                  "sgst_percentage": product.sgst_percentage,
+                  "cgst_percentage": product.cgst_percentage,
+                  "total_give_margin": product.total_give_margin,
+
           })),
         };
-        console.log('check the post data',postData);
-   const validationErrors = postData.products.filter(product => {
-    // console.log("take", parseInt(product.rtm) > parseInt(product.quantity))
-        return (
-          
-            this.isQuantityExceeded(product.received_quantity, product.quantity) ||
-            parseInt(product.rtm) > parseInt(product.quantity) || // Ensure both are integers for proper comparison
-            parseInt(product.rtm) >= parseInt(product.received_quantity) ||
-            (parseInt(product.received_quantity) === 0 && parseInt(product.rtm) > parseInt(product.quantity))
-            
-        );
-    });
+      console.log('check the post data',postData);
 
+     const validationErrors = postData.products.filter(product => {
+           console.log('check the post data',  product.rtm > product.quantity);
+    const totalQuantity = Number(product.received_quantity) + Number(product.rtm);
+    return (
+      this.isQuantityExceeded(product.received_quantity, product.quantity) ||
+      (product.received_quantity === 0 && product.rtm > product.quantity) || // RTM should not be greater than 0 when received quantity is 0
+      // (product.received_quantity === 0 && totalQuantity > 0) ||  // Total quantity (received + RTM) should not exceed 0 when received quantity is 0
+      // product.rtm > product.quantity ||
+      (product.received_quantity === product.quantity && product.rtm > product.quantity) ||
+      totalQuantity > product.quantity
+    );
+  });
+
+     console.log('valid errors',validationErrors);
       if (validationErrors.length === 0) {
       this.PostInputstock(postData).then((response) =>{
                 console.log('check the response',response);
@@ -336,8 +390,11 @@ validateForm(){
                     this.snackbar = true;
                     this.color = "success";
                     this.formData = {};
-                    this.snackbarText = response.message;  
-                    this.getInputstockdetails();  
+                    this.snackbarText = response.message; 
+                     this.$router.push({
+                      name: 'Viewpurchasehistory'
+                    }); 
+                    // this.getInputstockdetails();  
                   } else {          
                       this.snackbar = true;
                       this.color = "error";
@@ -346,11 +403,12 @@ validateForm(){
               })
       }else{
           this.snackbar = true;
-                      this.color = "error";
-                      this.snackbarText = "your quantities are exceeded"; 
+          this.color = "error";
+          this.snackbarText = "your quantities are exceeded"; 
       }
             
-    },
+     },
+
     getFormattedDate(date) {
       const year = date.getFullYear()
       const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -364,7 +422,8 @@ validateForm(){
         console.log('check input dtock', this.InputStockDetails)
 
         this.InputStockDetails.forEach(item => {
-          this.inputStock.brand_id = item.brand_id
+          this.inputStock.brand_id = item.brand_id;
+          this.inputStock.po_id = item.po_id;
           this.inputStock.po_number = item.po_number
           this.inputStock.brand_name = item.brand_name
           this.inputStock.po_status = item.po_status

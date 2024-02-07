@@ -10,11 +10,11 @@
         />          
      </div>
 
-      <VRow v-if="this.filteredPurchaseHistory == null">
+      <!-- <VRow v-if="this.filteredPurchaseHistory == null">
       <VCol cols="12"> 
         <VCard title="Purchase Order View">
           <VCardText> 
-            <!-- 👉 Checkbox and Button  -->
+     
             <VAlert
               color="warning"
               variant="tonal"
@@ -28,15 +28,15 @@
           </VCardText>
         </VCard>
       </VCol>
-     </VRow>
+     </VRow> -->
 
-     <VTable v-if="this.filteredPurchaseHistory != null"
+     <VTable 
        :headers="headers"
-       :items="filteredPurchaseHistory"
-        item-key="dessert"
-      class="table-rounded"      
+       :items="this.Allstocks"
+       item-key="dessert"
+       class="table-rounded"      
        height="500"
-      fixed-header 
+       fixed-header 
       >
        <thead>
         <tr>
@@ -51,34 +51,41 @@
       </thead>
 
       <tbody>
+          
        <tr
-        v-for="(item,index) in filteredPurchaseHistory"
+      
+            v-for="(item,index) in this.Allstocks.data"
         :key="index"
-
          
       >       
-        <td class="text-center">{{ item.po_number }}</td>
+        <td class="text-center">{{ item.brand_name }}</td>
         <td class="text-center">
-          {{ item.created_date }}
+          {{ item.sku_name }}
         </td>
-        <td class="text-center">
+        <!-- <td class="text-center">
            <VChip
         :color="resolveStatusVariant(item.po_status).color"
         class="font-weight-medium"
         size="small"
       >
         {{ item.po_status }}
-          <!-- {{ item.fat }} -->
+       
             </VChip>
+        </td> -->
+        <td class="text-center">
+          {{ item.uom }}
         </td>
         <td class="text-center">
-          {{ item.brand_name }}
+          {{ item.hsn_code }}
         </td>
-        <td class="text-center">
-          {{ item.brand_name }}
+          <td class="text-center">
+          {{ item.available_qty }}
         </td>
-        <td  class="text-center " v-if="item.po_status != 'Received'">
-          <!-- {{item.actions}} -->
+          <td class="text-center">
+          {{ item.stock_updated_date }}
+        </td>
+        <!-- <td  class="text-center " v-if="item.po_status != 'Received'">
+   
             <VBtn
                 icon
                 variant="text"
@@ -86,7 +93,7 @@
                 class="me-2"
                 size="small"                
             >
-            <!-- Receive Stock -->
+          
               <VIcon
               icon="mdi-invoice-receive-outline"
               color="success"
@@ -94,33 +101,8 @@
               @click="inputstock(item)"
               />
             </VBtn>
-              <!-- <VBtn
-                icon
-                variant="text"
-                color="default"
-                class="me-2"
-                size="x-small"
-                @click="deleteRow(item)"
-            >
-                <VIcon
-                icon="ri-pencil-line"
-                size="22"
-                />
-            </VBtn>
-            <VBtn
-                icon
-                variant="text"
-                color="default"
-                class="me-2"
-                size="x-small"
-                @click="deleteRow(item)"
-            >
-                <VIcon
-                icon="ri-delete-bin-line"
-                size="22"
-                />
-            </VBtn> -->
-          </td>
+             
+          </td> -->
       </tr>
       </tbody>        
         </VTable>
@@ -135,55 +117,47 @@ export default {
 
     data(){
         return{
-          userRoles:'',
+      
           loading:true,
-    purchaseHistory:[],
-    userIds:'',
-    createdBy:'',
+    Allstocks:[],
+
       headers: [
-          { text: 'PO Number', value: 'po_number' },
-          { text: 'Order Date', value: 'created_date' },
-          { text: 'Status', value: 'po_status' },
-          { text: 'Order To', value: 'brand_name'},
-          { text: 'Shipped To', value: 'brand_name' },
+          { text: 'Brand Name', value: 'brand_name' },
+          { text: 'SKU Name', value: 'sku_name' },
+          { text: 'UOM', value: 'uom' },
+          { text: 'HSN Code', value: 'hsn_code'},
+          { text: 'Available Quantity', value: 'available_qty' },
           // { text: 'Price/Unit', value: 'price_per_unit' },        
           // { text: 'TaxableAmount', value: 'taxable_amount' },   
           // { text: 'CGST', value: 'csgt' },  
           // { text: 'SGST', value: 'sgst' },  
-          { text: 'Action', value: 'actions' }, 
+          { text: 'Stock Updated Date', value: 'stock_updated_date' }, 
          ],
         }
     },
-     computed: {
-    filteredPurchaseHistory() {
-      // Filter purchaseHistory based on the condition
-      return this.purchaseHistory.filter(item => item.po_status === 'Acknowledged' || item.po_status === 'Shared' || item.po_status === 'Received');
-    }
-  },
+  
     mounted(){
    
-       this.createdBy = localStorage.getItem('createdby');
-       this.userIds = localStorage.getItem('userId');
-       this.userRoles = localStorage.getItem('userRole')
-       this.getPurchasehistorydetails();
+ 
+       this.getstocksdetails();
            setTimeout(() => {
               this.loading = false; // Set loading to false when the operation is complete
             }, 4000);
     },
     methods:{
-      inputstock(itm){
-        console.log('check the detials',itm.po_id);
-         this.$router.push({
-          name: 'Createwarehouseinput', // Replace with the actual name of your route
-          query: { po_id: itm.po_id }
-        });
+    //   inputstock(itm){
+    //     console.log('check the detials',itm.po_id);
+    //      this.$router.push({
+    //       name: 'Createwarehouseinput', // Replace with the actual name of your route
+    //       query: { po_id: itm.po_id }
+    //     });
         
-      },
-      getPurchasehistorydetails(){
-        this.getPurchaseorder(this.userIds,this.userRoles).then((response) =>{
-          console.log('check the view purchase order',response.data);
-          this.purchaseHistory = response.data;
-          console.log('check the view purchase History',this.purchaseHistory);
+    //   },
+      getstocksdetails(){
+        this.getAllstocks().then((response) =>{
+          console.log('check the view stocks',response.data);
+          this.Allstocks = response.data;
+          console.log('check the view purchase History',this.Allstocks);
 
         })
       },

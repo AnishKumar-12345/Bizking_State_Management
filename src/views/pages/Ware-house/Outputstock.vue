@@ -44,7 +44,7 @@
                     label="Date"
                     :min="today"
                    
-                    readonly
+                    
                 />
               </VCol>
             
@@ -55,8 +55,8 @@
                 <VSelect
                  v-model="this.outputStock.so_status"
                   label="SO Status"
-                  readonly
-                    :items="['Draft','Created','Shared','Acknowledged']"
+                  
+                    :items="['Acknowledged','Shipped']"
                 />
               </VCol>
               <VCol cols="12">
@@ -101,8 +101,25 @@
           <!-- {{ item.available }} -->
         </td>
         <td class="text-center">
-          <VTextField v-model="item.shipped" outlined dense />
+          <VTextField   @keydown="preventDecimal"
+                              @paste="preventPaste"
+                              type="number"
+                              min="0"
+                               max="20000" v-model="item.shipped_ordered" outlined dense />
 
+          <!-- {{ item.carbs }} -->
+        </td>
+           <span v-if="isQuantityExceeded(item.shipped_ordered,item.ordered_quantity)" >
+                           
+                          </span>
+         <td class="text-center">
+          <VTextField   @keydown="preventDecimal"
+                              @paste="preventPaste"
+                              type="number"
+                              min="0"
+                               max="20000" v-model="item.shipped_exchange" outlined dense />
+    <span v-if="isQuantityExceeded2(item.shipped_exchange,item.exchange_quantity)" >
+    </span>
           <!-- {{ item.carbs }} -->
         </td>
         <!-- <td class="text-center">
@@ -119,7 +136,7 @@
                 cols="12"
                 class="d-flex flex-wrap gap-4"
               >
-                <VBtn>Save</VBtn>
+                <VBtn @click="saveOutputstock()">Save</VBtn>
 
                 <VBtn
                   color="secondary"
@@ -137,7 +154,14 @@
       </VCard>
     </VCol>  
   </VRow>    
-
+ <VSnackbar
+      v-model="snackbar" :timeout="3000"
+      :color="color"
+      
+    >
+      {{ snackbarText }}
+     <!-- <VBtn text @click="snackbar = false">Close</VBtn> -->
+    </VSnackbar>
  
     </div>
 </template>
@@ -148,6 +172,15 @@ export default {
      props: ['so_id'],
    data(){
     return{
+       snackbar: false,
+      snackbarText: '',
+      timeout: 6000, // milliseconds
+      color: '', // or 'error', 'warning', 'info', etc.
+      top: false,
+      bottom: true,
+      left: false,
+      right: false,
+
       selectedPurchaseOrder: null,
         dialog: false,
     Soid:'',
@@ -183,7 +216,14 @@ export default {
                 "cgst": "",
                 "sgst": "",
                 "amount": "",
-                "shipping_quantity":""
+              
+                "sgst_percentage":"",
+                "cgst_percentage":"",
+                "exchange":"",
+                "return":"",
+                "shipped_ordered":"",
+                "shipped_exchange":"",
+
             },          
         ]
 
@@ -191,10 +231,12 @@ export default {
       outputStockproducts:[],
       headers: [
         // { text: 'Product ID', value: 'id'},
-        { text: 'Exchange Quantity', value: 'EQuantity' },
-        { text: 'Ordered Quantity', value: 'OQuantity' },
-        { text: 'Available', value: 'available' },
-        { text: 'Shipped', value: 'shipped' },
+        { text: 'Exchange Quantity', value: 'exchange_quantity' },
+        { text: 'Ordered Quantity', value: 'ordered_quantity' },
+        { text: 'Available', value: 'warehouse_quantity' },
+        { text: 'Shipped Ordered', value: 'shipped_ordered' },
+        { text: 'Shipped Exchanged', value: 'shipped_exchange' },
+
         // { text: 'Remarks', value: 'protein' },
       ],
     }
@@ -215,7 +257,104 @@ mounted(){
     this.getOutputstockdetails();
 },
    methods:{
+  
+      preventPaste(event) {
+      const clipboardData = event.clipboardData || window.clipboardData
+      const pastedData = clipboardData.getData('text')
 
+      // Validate pasted data (you can modify this regex as needed)
+      const isValid = /^[0-9]+$/.test(pastedData)
+
+      if (!isValid) {
+        event.preventDefault()
+      }
+    },
+
+     preventDecimal(event) {
+     if (event.key === '.' || event.key === ',' ||  event.key === '+' ||  event.key === '-' || event.keyCode === 189 || event.keyCode === 109) {
+        event.preventDefault();
+      }
+    },
+
+    saveOutputstock(){
+      const statusMapping = {
+            'Draft': 1,
+            'Created': 2,
+            'Acknowledged': 3,
+            'Shipped': 4,
+            'Delivered':5
+          };
+       const postData = {
+          "so_id":  this.OutputStockDetails.so_id,
+          "so_number": this.outputStock.so_number, 
+          "so_status": statusMapping[this.outputStock.so_status] ,         
+          "merchant_id": this.OutputStockDetails.merchant_id,          
+          "merchant_code": this.OutputStockDetails.merchant_code,          
+          "merchant_name": this.outputStock.merchant_name,          
+          "total_cgst": this.OutputStockDetails.total_cgst,   
+          "total_sgst": this.OutputStockDetails.total_sgst,        
+          "sub_total": this.OutputStockDetails.sub_total,          
+          "total_margin": this.OutputStockDetails.total_margin,          
+          "total_so_amount": this.OutputStockDetails.total_so_amount,          
+          "total_quantity": this.OutputStockDetails.total_quantity,          
+          "created_date": this.OutputStockDetails.created_date,          
+          "shipped_date": this.outputStock.shipped_date,        
+          "products": this.outputStockproducts.filter(product => product.shipped_ordered > 0 || product.shipped_exchange > 0).map((product,index) => ({
+            "merchant_product_id": product.merchant_product_id,
+                  "sku_name": product.sku_name,
+                  "hsn_code": product.hsn_code,
+                  "mrp": product.mrp,
+                  "margin": product.margin,
+                  "margin_percentage": product.margin_percentage,
+                  // "ordered_quantity":  product.ordered_quantity,
+                  // "warehouse_quantity":  product.warehouse_quantity,
+                  "quantity": product.ordered_quantity,
+                  "uom":  product.uom,
+                  "price_per_unit":  product.price_per_unit,
+                  "taxable_amount":  product.taxable_amount,
+                  "cgst":  product.cgst,
+                  "sgst":  product.sgst,
+                  "amount":  product.amount,                
+                  "sgst_percentage":  product.sgst_percentage,
+                  "cgst_percentage":  product.cgst_percentage,
+                  "exchange":  product.exchange,
+                  "return":  product.return,
+                  "shipped_ordered":  `${product.shipped_ordered}`,
+                  "shipped_exchange":  `${product.shipped_exchange}`,
+          })),
+        };
+        console.log('check the post data',postData);
+       const validationErrors = postData.products.filter(product => {       
+       console.log('sit', this.isQuantityExceeded(product.shipped_ordered, product.ordered_quantity));
+        return (
+          this.isQuantityExceeded(product.shipped_ordered, product.ordered_quantity) || 
+          this.isQuantityExceeded2(product.shipped_exchange, product.exchange_quantity)       
+        );
+      });
+
+       if (validationErrors.length === 0) {
+            this.postOutputstock(postData).then((response)=>{
+             console.log('check the response',response);
+                // console.log('check the response',response.status);
+                  if (response.status == 1) {              
+                    this.snackbar = true;
+                    this.color = "success";
+                    this.formData = {};
+                    this.snackbarText = response.message;  
+                    // this.getInputstockdetails();  
+                  } else {          
+                      this.snackbar = true;
+                      this.color = "error";
+                    };
+         })
+       }else{
+          this.snackbar = true;
+          this.color = "error";
+          this.snackbarText = "your quantities are exceeded"; 
+       }
+       
+
+    },
    getFormattedDate(date) {
       const year = date.getFullYear()
       const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -223,12 +362,12 @@ mounted(){
       return `${year}-${month}-${day}`
     },
 
-        getOutputstockdetails() {
+      getOutputstockdetails() {
         this.getOutputstock(this.Soid).then(response => {
         this.OutputStockDetails = response.data
-         console.log('check output dtock', this.OutputStockDetails.so_number);
+         console.log('check output dtock', this.OutputStockDetails);
          
-      this.outputStock.so_number = this.OutputStockDetails.so_number;
+        this.outputStock.so_number = this.OutputStockDetails.so_number;
         this.outputStock.merchant_name = this.OutputStockDetails.merchant_name;
         this.outputStock.so_status = this.OutputStockDetails.so_status;
         this.outputStockproducts = this.OutputStockDetails.products;
@@ -247,14 +386,14 @@ mounted(){
      resolveStatusVariant (itm){
       if (itm.warehouse_quantity < itm.ordered_quantity)
         return {
-          color: 'error',
+          color: 'success',
           // text: 'Created',
         }   
       
       
       else
         return {
-          color: 'success',
+          color: 'error',
           // text: 'Shared',
         }
       },
@@ -272,6 +411,21 @@ mounted(){
    },
     closeDialog() {
       this.dialog = false;
+    },
+
+      isQuantityExceeded(sq,oq){
+       if (sq !== "0" &&  sq > oq){
+        this.snackbar = true;
+        this.color = "error";
+        this.snackbarText = "Shipped quantity cannot exceed orderd quantity."
+      }
+    },
+    isQuantityExceeded2(seq,eq){
+       if(seq !== "0" && seq > eq){
+        this.snackbar = true;
+        this.color = "error";
+        this.snackbarText = "Shipped quantity cannot exceed orderd quantity."
+      }
     },
    },
  

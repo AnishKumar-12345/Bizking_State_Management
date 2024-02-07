@@ -24,4 +24,15 @@ const router = createRouter({
     return { top: 0 }
   },
 })
+
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = localStorage.getItem('createdby') !== null;/* Check if user is authenticated */  // You need to implement this logic
+  
+  // If the user is not authenticated and trying to access any route other than '/login', redirect to '/login'
+  if (!isAuthenticated && to.path !== '/login') {
+    next('/login');
+  } else {
+    next(); // Proceed with navigation
+  }
+});
 export default router

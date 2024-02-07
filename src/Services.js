@@ -157,6 +157,41 @@ export default {
           .catch(err => {
             return err.response;
           });
+        },
+        postOutputstock(reqbody){
+          return axios
+          .post(this.url +"bizkingz/services/api/warehouse/outputStock",reqbody, {
+            // withCredentials: true,
+            headers: {
+              "Content-Type": "application/json",
+         
+            }
+          })
+          .then(response => {
+            return response.data;
+          })
+          .catch(err => {
+            console.log('check tick',err);
+            return err.response;
+          });
+        },
+        getAllstocks(){
+          return axios
+          .get(this.url +"bizkingz/services/api/warehouse/stock", {
+            headers: {
+              "accept": "*/*",
+              "Content-Type": "application/json",
+              
+            },
+            // responseType: 'blob',
+          })
+          .then(response => {
+            return response;
+            // responseType: 'blob',
+          })
+          .catch(err => {
+            return err.response;
+          });
         }
     }
 }

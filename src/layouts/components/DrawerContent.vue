@@ -121,8 +121,9 @@ export default{
           children: [
             { id: 42, title: 'Input Stock', route: '/Createwarehouseinput' },
             { id: 43, title: 'Output Stock', route: '/Createwarehouseoutput' },
-             { id: 44, title: 'Generate D.C', route: '/tables' },                    
-              { id: 45, title: 'Update RTV', route: '/tables' },  
+             { id: 44, title: 'View Stock', route: '/Viewstoreinventory' },
+            //  { id: 45, title: 'Generate D.C', route: '/tables' },                    
+            //   { id: 46, title: 'Update RTV', route: '/tables' },  
           ],
           expanded: false,
         },
@@ -131,9 +132,9 @@ export default{
           title: 'Store Inventory',
           icon: "carbon:store",
           children: [
-            { id: 46, title: 'View Store', route: '/account-settings' },
-            { id: 47, title: 'Update Stock', route: '/tables' },
-             { id: 48, title: 'Delete Product', route: '/tables' },                    
+            { id: 47, title: 'View Store', route: '/account-settings' },
+            { id: 48, title: 'Update Stock', route: '/tables' },
+             { id: 49, title: 'Delete Product', route: '/tables' },                    
 
           ],
           expanded: false,

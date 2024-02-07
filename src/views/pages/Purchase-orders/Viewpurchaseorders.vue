@@ -9,6 +9,15 @@
             full-width              
         />          
      </div>
+     <div v-if="loading2"  class="loading-container">
+      <VProgressLinear
+            height="5"
+            color="error"
+            indeterminate
+            class="custom-loader"  
+            full-width              
+        />          
+     </div>
 
      <VRow v-if="this.purchaseorders == null">
       <VCol cols="12"> 
@@ -77,7 +86,7 @@
           <td class="text-center">&#8377;{{ item.total_po_amount }}</td>
           <td class="text-center" style="display:flex;justify-content:center;align-items:center;">
             <VBtn
-              v-if="item.po_status != 'Acknowledged' && item.po_status != 'Shared'"
+              v-if="item.po_status != 'Acknowledged' && item.po_status != 'Shared' &&  item.po_status != 'Received'"
               icon
               variant="text"
               color="default"
@@ -106,7 +115,7 @@
                 />
             </VBtn> -->
             <VBtn
-              v-if="item.po_status == 'Acknowledged' || item.po_status == 'Shared'"
+              v-if="item.po_status == 'Acknowledged' || item.po_status == 'Shared' || item.po_status == 'Received'"
               icon
               variant="text"
               color="default"
@@ -138,7 +147,7 @@
             </VBtn> -->
             <VBtn
 
-             v-if="item.po_status == 'Acknowledged' || item.po_status == 'Shared'"
+             v-if="item.po_status == 'Acknowledged' || item.po_status == 'Shared' || item.po_status == 'Received'"
               icon
               variant="text"
               color="default"
@@ -157,46 +166,12 @@
       </tbody>
       <!-- </template> -->
     </VTable>
+    
     <VDialog
       v-model="dialog"
       max-width="1000"
     >
-      <!-- <VCard title="Add Your Product">
-        <VCardText>         
-          <VForm class="mt-6 ">
-            <VRow>
     
-              <VCol
-                md="6"
-                cols="12"
-              >               
-              </VCol>
-
-
-            
-            
-              
-              <VCol
-                cols="12"
-                class="d-flex flex-wrap gap-4"
-              >
-                <VBtn>Add</VBtn>
-
-                <VBtn
-                  color="secondary"
-                  variant="tonal"
-                  type="reset"
-                  @click="closeDialog"
-                >
-                  Close
-                </VBtn>
-              </VCol>
-            </VRow>
-          </VForm>
-        </VCardText>
-        <VCardActions>        
-        </VCardActions>
-      </VCard> -->
       <VCard
         title="Purchase Order"
         class="mb-2"
@@ -255,7 +230,7 @@
                     <VSelect
                       v-model="this.productData.po_status"
                       label="PO Status"
-                      :items="['Draft', 'Created', 'Shared', 'Acknowledged']"
+                      :items="['Draft', 'Created', 'Shared', 'Acknowledged','Received']"
                       :rules="Statusrules"
                     />
                   </VCol>
@@ -629,6 +604,7 @@
                   <VDivider />
 
                   <VCol cols="12">
+
                     <VTable
                       :headers="headers3"
                       :items="viewProduct"
@@ -654,10 +630,37 @@
                           <td class="text-center">{{ item.mrp }}</td>
                           <td class="text-center">{{ item.quantity }}</td>
                           <td class="text-center">{{ item.uom }}</td>
-                          <td class="text-center">{{ item.price_per_unit }}</td>
+                          <td class="text-center">{{ item.price_per_unit }}
+                             <VChip
+                              :color="colorTGMmargin(item.total_give_margin).color"
+                              class="font-weight-medium"
+                              size="small"
+                            >
+                              ({{ item.total_give_margin }})
+                                <!-- {{ item.fat }} -->
+                                  </VChip>
+                          </td>
                           <td class="text-center">{{ item.taxable_amount }}</td>
-                          <td class="text-center">{{ item.csgt }}</td>
-                          <td class="text-center">{{ item.sgst }}</td>
+                          <td class="text-center">{{ item.csgt }}
+                              <VChip
+                              :color="colorTGMmargin(item.cgst_percentage).color"
+                              class="font-weight-medium"
+                              size="small"
+                            >
+                              ({{ item.cgst_percentage }})
+                                <!-- {{ item.fat }} -->
+                                  </VChip>
+                          </td>
+                          <td class="text-center">{{ item.sgst }}
+                              <VChip
+                              :color="colorTGMmargin(item.sgst_percentage).color"
+                              class="font-weight-medium"
+                              size="small"
+                            >
+                              ({{ item.sgst_percentage }})
+                                <!-- {{ item.fat }} -->
+                                  </VChip>
+                          </td>
                           <td class="text-center">{{ item.amount }}</td>
                         </tr>
                       </tbody>
@@ -832,6 +835,7 @@
                         </tr>
                       </tfoot>
                     </VTable>
+
                   </VCol>
 
                   <VCol
@@ -855,6 +859,7 @@
         </VCardText>
       </VCard>
     </VDialog>
+
     <VSnackbar
       v-model="snackbar"
       :timeout="2000"
@@ -874,6 +879,7 @@ export default {
   data() {
     return {
       loading: true,
+      loading2: false,
       Viewtotals: {
         total_po_amount: '',
         total_taxableammout: '',
@@ -1103,28 +1109,29 @@ export default {
         // Vue.set(this.AllBrandproducts, index, { ...item, roundedPricePerUnit });
       })
     },
-    calculatedTaxableAmount() {
-      return this.AllBrandproducts.map((item, index) => {
-        const quantitt = parseFloat(item.quantity);
-        console.log("quantty",quantitt);
+ calculatedTaxableAmount() {
+  return this.AllBrandproducts.map((item, index) => {
+    const quantitt = parseFloat(item.quantity);
+    const rawPricePerUnit = this.calculatedPricePerUnit[index];
+    const pricePerUnit = parseFloat(rawPricePerUnit);
 
-        const rawPricePerUnit = parseFloat(this.calculatedPricePerUnit[index]);
-        console.log('rawpriceunit',rawPricePerUnit);
-        const pricePerUnit = parseFloat(rawPricePerUnit);
-        console.log('rawpriceunit',pricePerUnit);
+    // Skip calculation if quantity is 0
+    // if (quantitt === 0) {
+    //   return 0;
+    // }
 
+    // if (isNaN(quantitt) || isNaN(pricePerUnit)) {
+    //   console.log(`Invalid quantity or price at index ${index}`);
+    //   return 0; // or any default value
+    // }
 
-        if (isNaN(quantitt) || isNaN(pricePerUnit)) {
-          console.log(`Invalid quantity or price at index ${index}`);
-          return 0; // or any default value
-        }
+    const taxableAmount = quantitt * pricePerUnit;
+    return isNaN(taxableAmount) ? 0 : taxableAmount.toFixed(2);
+  });
+}
 
-        const taxableAmount = quantitt * pricePerUnit;
-        console.log('total tax',taxableAmount);
-        return isNaN(taxableAmount) ? 0 : taxableAmount.toFixed(2);
-      });
-    },
   },
+
   mounted() {
    
     this.createdBy = localStorage.getItem('createdby')
@@ -1138,10 +1145,51 @@ export default {
     //  this.loading = false;
   },
   methods: {
+
+     colorTGMmargin(text){
+    if(text){
+      return {
+          color: 'success',
+          // text: 'Shared',
+        }
+    }else{
+      return{
+        color: 'error'
+      }
+    }
+   },
+    colorSGSTmargin(text){
+    if(text){
+      return {
+          color: 'success',
+          // text: 'Shared',
+        }
+    }else{
+      return{
+        color: 'error'
+      }
+    }
+   },
+
+   colorCGSTmargin(text){
+    if(text){
+      return {
+          color: 'success',
+          // text: 'Shared',
+        }
+    }else{
+      return{
+        color: 'error'
+      }
+    }
+   },
+
      getPDFupdate(id){
+      this.loading2 = true;
       this.getPurchasePDF(id).then((response)=>{
         console.log(response)
         const pdfUrl = response.data.po_file;
+        this.loading2 = false;
          window.open(pdfUrl, '_blank');
       })
     },
@@ -1191,10 +1239,11 @@ export default {
     saveProducteditData() {
       // console.log('check the CGST Amount',this.allCGSTAmount);
       const statusMapping = {
-        Draft: '1',
-        Created: '2',
-        Shared: '3',
-        Acknowledged: '4',
+        Draft: 1,
+        Created: 2,
+        Shared: 3,
+        Acknowledged: 4,
+        Received: 5,
       }
       const existingProductIds = this.editProduct.map(editProduct => editProduct.brand_product_id)
       const postData = {
@@ -1412,6 +1461,11 @@ export default {
       else if (status == 'Acknowledged')
         return {
           color: 'warning',
+          // text: 'Acknowledged',
+        }
+        else if (status == 'Received')
+        return {
+          color: 'success',
           // text: 'Acknowledged',
         }
       else
