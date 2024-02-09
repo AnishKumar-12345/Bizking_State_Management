@@ -230,7 +230,7 @@
                     <VSelect
                       v-model="this.productData.po_status"
                       label="PO Status"
-                      :items="['Draft', 'Created', 'Shared', 'Acknowledged','Received']"
+                      :items="['Draft', 'Created', 'Shared', 'Acknowledged']"
                       :rules="Statusrules"
                     />
                   </VCol>
@@ -1092,23 +1092,62 @@ export default {
         return isNaN(cgstdata) ? 0 : cgstdata.toFixed(2)
       })
     },
-    calculatedPricePerUnit() {
-      // const item = this.AllBrandproducts[index];
-      return this.AllBrandproducts.map(item => {
-        const mrp = parseFloat(item.mrp)
-        const totalGivenMargin = parseFloat(item.total_given_margin.replace('%', ''))
-        // const quantity = parseFloat(item.quantity);
-        // Calculate the price per unit using the formula
-        const pricePerUnit = mrp - (mrp * totalGivenMargin) / 100
-
-        // Round the result to two decimal places
-        return isNaN(pricePerUnit) ? 0 : pricePerUnit.toFixed(2)
-        // return pricePerUnit.toFixed(2);
-        //  const roundedPricePerUnit = pricePerUnit.toFixed(2);
-        //   this.AllBrandproducts[index] = { ...item, roundedPricePerUnit };
-        // Vue.set(this.AllBrandproducts, index, { ...item, roundedPricePerUnit });
-      })
+   TaxfromCgst(){
+           return this.AllBrandproducts.map(item => {
+                 const MRP =   parseFloat(item.mrp);
+                 const CGST =  parseFloat(item.cgst.replace('%', ''));
+                //  const SGST =  parseFloat(item.sgst.replace('%', ''));
+                const Tax1 = MRP-(MRP/(1+(CGST/100)));
+                return isNaN(Tax1) ? 0 : Tax1.toFixed(2);
+           })
     },
+     TaxfromSgst(){
+           return this.AllBrandproducts.map(item => {
+                 const MRP =   parseFloat(item.mrp);
+                 const SGST =  parseFloat(item.sgst.replace('%', ''));
+                //  const SGST =  parseFloat(item.sgst.replace('%', ''));
+                const Tax2 = MRP-(MRP/(1+(SGST/100)));
+                return isNaN(Tax2) ? 0 : Tax2.toFixed(2);
+           })
+    },
+calculatedPricePerUnit(){
+    return this.AllBrandproducts.map((item,index) => {
+      const Mrp = parseFloat(this.TaxDeductMRP[index]);
+      // console.log('Dedect MRP',Mrp);
+
+        const totalGivenMargin = parseFloat(item.total_given_margin.replace('%', ''));
+      // console.log('Mar',totalGivenMargin);
+
+     const pricePerUnit = Mrp - (Mrp * totalGivenMargin) / 100; 
+      
+      return isNaN(pricePerUnit) ? 0 : pricePerUnit.toFixed(2);
+     
+    });
+},
+    TaxDeductMRP() {
+      // const item = this.AllBrandproducts[index];
+     return this.AllBrandproducts.map((item,index) => {
+      const mrp = parseFloat(item.mrp);
+      const TaxCGST =  parseFloat(this.TaxfromCgst[index]);
+      const TaxSGST =  parseFloat(this.TaxfromSgst[index]);
+      // console.log('m Total deduct',mrp-(TaxCGST+TaxSGST));
+      // console.log('mr sgst deduct',TaxSGST);
+
+      const tmrp =  mrp-(TaxCGST+TaxSGST);
+      // console.log('mrp deduct',tmrp);
+      // const totalGivenMargin = parseFloat(item.total_given_margin.replace('%', ''));
+      // const quantity = parseFloat(item.quantity);
+      // Calculate the price per unit using the formula
+      // const pricePerUnit = tmrp - (tmrp * totalGivenMargin) / 100;
+
+      // Round the result to two decimal places
+      return isNaN(tmrp) ? 0 : tmrp.toFixed(2);
+      // return pricePerUnit.toFixed(2);
+      //  const roundedPricePerUnit = pricePerUnit.toFixed(2);
+      //   this.AllBrandproducts[index] = { ...item, roundedPricePerUnit };
+        // Vue.set(this.AllBrandproducts, index, { ...item, roundedPricePerUnit });
+    });
+  },
  calculatedTaxableAmount() {
   return this.AllBrandproducts.map((item, index) => {
     const quantitt = parseFloat(item.quantity);

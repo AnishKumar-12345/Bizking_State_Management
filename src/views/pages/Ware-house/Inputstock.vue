@@ -53,11 +53,12 @@
                   cols="12"
                 >
                 <!-- {{this.inputStock.po_status}} -->
-                  <VSelect
+                     <!-- :items="['Draft', 'Created', 'Shared', 'Acknowledged', 'Received', 'Close']" -->
+                  <VTextField
                     v-model="this.inputStock.po_status"
                     label="PO Status"
-                    :items="['Draft', 'Created', 'Shared', 'Acknowledged', 'Received', 'Close']"
-                    
+               
+                    readonly
                   />
                 </VCol>
                 <VCol cols="12">
@@ -119,7 +120,8 @@
                             v-model="item.rtm"
                             outlined
                             dense
-                            required
+                            
+                            :rules="rtm1"
                        
                           />
                          <!-- <span v-if="isrtmQuantityExceeded(item.received_quantity,item.quantity,item.rtm)" >
@@ -146,13 +148,13 @@
                 >
                   <VBtn @click="validateForm()">Save</VBtn>
 
-                  <VBtn
+                  <!-- <VBtn
                     color="secondary"
                     variant="tonal"
                     type="reset"
                   >
                     Reset
-                  </VBtn>
+                  </VBtn> -->
                 </VCol>
               </VRow>
             </VForm>
@@ -182,7 +184,7 @@ export default {
   data() {
     return {
       receivedquantity: [(v) => v === 0 || (!!v && `${v}`.trim() !== '') || 'Received Quantity Is Required'],
-      //  rtm: [v => !!v || 'RTM Is Required'],
+     rtm1: [(v) => v === 0 || (!!v && `${v}`.trim() !== '') || 'Rtm Quantity Is Required'],
       //  remarks: [v => !!v || 'remarks Is Required'],
       snackbar: false,
       snackbarText: '',
@@ -368,16 +370,27 @@ validateForm(){
         };
       console.log('check the post data',postData);
 
+   const hasNonZeroQuantity = postData.products.some(product => product.received_quantity > 0 || product.rtm > 0);
+
+    if (!hasNonZeroQuantity) {
+        this.snackbar = true;
+        this.color = "error";
+        this.snackbarText = "Received Quantity or RTM must be greater than 0 for at least one product.";
+        return;
+    }
+
      const validationErrors = postData.products.filter(product => {
            console.log('check the post data',  product.rtm > product.quantity);
     const totalQuantity = Number(product.received_quantity) + Number(product.rtm);
     return (
       this.isQuantityExceeded(product.received_quantity, product.quantity) ||
-      (product.received_quantity === 0 && product.rtm > product.quantity) || // RTM should not be greater than 0 when received quantity is 0
-      // (product.received_quantity === 0 && totalQuantity > 0) ||  // Total quantity (received + RTM) should not exceed 0 when received quantity is 0
-      // product.rtm > product.quantity ||
+      (product.received_quantity === 0 && product.rtm > product.quantity) ||
+     
       (product.received_quantity === product.quantity && product.rtm > product.quantity) ||
-      totalQuantity > product.quantity
+      totalQuantity > product.quantity 
+      // || 
+      // totalQuantity !== product.quantity ||
+      // (product.received_quantity > 0 || product.rtm > 0) && totalQuantity !== product.quantity
     );
   });
 
@@ -390,10 +403,13 @@ validateForm(){
                     this.snackbar = true;
                     this.color = "success";
                     this.formData = {};
-                    this.snackbarText = response.message; 
-                     this.$router.push({
+                    this.snackbarText = response.message;  
+                     setTimeout(() => {
+                       this.$router.push({
                       name: 'Viewpurchasehistory'
                     }); 
+            }, 2000); 
+                     
                     // this.getInputstockdetails();  
                   } else {          
                       this.snackbar = true;
@@ -426,7 +442,7 @@ validateForm(){
           this.inputStock.po_id = item.po_id;
           this.inputStock.po_number = item.po_number
           this.inputStock.brand_name = item.brand_name
-          this.inputStock.po_status = item.po_status
+          this.inputStock.po_status = 'Received'
           this.inputStockproducts = item.products
           this.inputStock.received_quantity = item.received_quantity
           this.inputStock.remarks = item.remarks

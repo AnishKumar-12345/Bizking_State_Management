@@ -24,8 +24,46 @@
         @click:append-inner="onClick" 
     />
     </div> -->
+     <div v-if="loading"  class="loading-container">
+      <VProgressLinear
+            height="5"
+            color="primary"
+            indeterminate
+            class="custom-loader"  
+            full-width              
+        />          
+     </div>
+       <div v-if="loading2"  class="loading-container">
+      <VProgressLinear
+            height="5"
+            color="primary"
+            indeterminate
+            class="custom-loader"  
+            full-width              
+        />          
+     </div>
+       <VRow v-if="this.saleshistory == null">
+      <VCol cols="12"> 
+        <VCard title="Sales Order View">
+          <VCardText> 
+            <!-- 👉 Checkbox and Button  -->
+            <VAlert
+              color="warning"
+              variant="tonal"
+              class="mb-4"              
+              border="top"
+            >
+              <VAlertTitle class="mb-1"> Are you sure you gave Sales Orders? </VAlertTitle>
+              <p class="mb-0">
+                The system is not retrieving the Sales Orders. Please ensure that you have applied for Sales Orders !</p>
+            </VAlert>
+          </VCardText>
+        </VCard>
+      </VCol>
+     </VRow>
    <VTable 
-       :headers="headers"
+       v-if="this.saleshistory != null"
+       :headers="headers" 
        :items="saleshistory"
        
       class="table-rounded"      
@@ -77,6 +115,7 @@
         <td  class="text-center ">
           <!-- {{item.actions}} -->
             <VBtn
+            v-if="item.so_status != 'Shipped'"
                 icon
                 variant="text"
                 color="success"
@@ -89,6 +128,23 @@
               color="success"
               size="30"
               @click="outputstock(item)"
+              />
+            </VBtn>
+
+             <VBtn
+
+             v-if="item.so_status == 'Shipped'"
+              icon
+              variant="text"
+              color="default"
+              class="me-2"
+              size="x-small"
+              @click="getPDFupdate(item.delivery_challan_file)"
+            >
+              <VIcon
+                color="error"
+                icon="iwwa:file-pdf"
+                size="26"
               />
             </VBtn>
               <!-- <VBtn
@@ -132,8 +188,9 @@ export default {
 
     data(){
         return{
+          loading2: false,
             loaded: false,
-       loading: false,
+       loading: true,
      saleshistory:[],
       headers: [
         
@@ -149,8 +206,21 @@ export default {
     },
     mounted(){
       this.getSalesorderdetails();
+        setTimeout(() => {
+      this.loading = false; // Set loading to false when the operation is complete
+    }, 2500);
     },
     methods:{
+          getPDFupdate(id){
+      this.loading2 = true;
+       window.open(id, '_blank');
+      // this.getPurchasePDF(id).then((response)=>{
+      //   console.log(response)
+      //   const pdfUrl = response.data.po_file;
+      //   this.loading2 = false;
+        
+      // })
+    },
       outputstock(item){
           console.log('check the detials',item.so_id);
          this.$router.push({
@@ -161,7 +231,7 @@ export default {
          resolveStatusVariant (status){
       if (status == 'Acknowledged')
         return {
-          color: 'success',
+          color: 'warning',
           // text: 'Acknowledged',
         }
      
@@ -169,7 +239,7 @@ export default {
         
       else
         return {
-          color: 'info',
+          color: 'success',
           // text: 'Shared',
         }
       },
@@ -180,30 +250,30 @@ export default {
 
         })
       },
-       onClick () {
-        this.loading = true
+      //  onClick () {
+      //   this.loading = true
 
-        setTimeout(() => {
-          this.loading = false
-          this.loaded = true
-        }, 2000)
-      },
+      //   setTimeout(() => {
+      //     this.loading = false
+      //     this.loaded = true
+      //   }, 2000)
+      // },
 
-      resolveStatusVariant (status){
-      if (status == 'Acknowledged')
-        return {
-          color: 'warning',
-          text: 'Acknowledged',
-        }
+      // resolveStatusVariant (status){
+      // if (status == 'Acknowledged')
+      //   return {
+      //     color: 'warning',
+      //     text: 'Acknowledged',
+      //   }
      
       
         
-      else
-        return {
-          color: 'info',
-          text: 'Shared',
-        }
-      },
+      // else
+      //   return {
+      //     color: 'info',
+      //     text: 'Shared',
+      //   }
+      // },
     }
 }
 </script>

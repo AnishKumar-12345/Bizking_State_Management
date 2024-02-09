@@ -1,12 +1,21 @@
 <template>
     <div>
+       <div v-if="loading"  class="loading-container">
+      <VProgressLinear
+            height="5"
+            color="primary"
+            indeterminate
+            class="custom-loader"  
+            full-width              
+        />          
+     </div>
          <VRow>
       <VCol cols="12">
        <VCard title="Output Stock" class="mb-4">       
 
         <VCardText>
           <!-- 👉 Form -->
-          <VForm class="mt-6 ">
+          <VForm class="mt-6 " ref="purchaseOrderForm">
             <VRow>
     
               <VCol
@@ -52,11 +61,11 @@
                 md="6"
                 cols="12"
               >
-                <VSelect
+                <VTextField
                  v-model="this.outputStock.so_status"
                   label="SO Status"
-                  
-                    :items="['Acknowledged','Shipped']"
+                  readonly
+                   
                 />
               </VCol>
               <VCol cols="12">
@@ -79,14 +88,15 @@
               </thead>
 
       <tbody>
+        <!-- {{filteredOutputstocks}} -->
        <tr
         v-for="(item,index) in this.outputStockproducts"
         :key="index"
       >
-       <!-- <td  class="text-center">
-           {{item.id}}
-          </td> -->
-        <td class="text-center">{{ item.exchange_quantity }}</td>
+       <td  class="text-center">
+           {{item.sku_name}}
+          </td>
+        <td class="text-center">{{ item.exchange }}</td>
         <td class="text-center">
           {{ item.ordered_quantity }}
         </td>
@@ -105,8 +115,8 @@
                               @paste="preventPaste"
                               type="number"
                               min="0"
-                               max="20000" v-model="item.shipped_ordered" outlined dense />
-
+                               max="20000" :rules="shippedquantity" v-model="item.shipped_ordered" outlined dense />
+             
           <!-- {{ item.carbs }} -->
         </td>
            <span v-if="isQuantityExceeded(item.shipped_ordered,item.ordered_quantity)" >
@@ -117,8 +127,8 @@
                               @paste="preventPaste"
                               type="number"
                               min="0"
-                               max="20000" v-model="item.shipped_exchange" outlined dense />
-    <span v-if="isQuantityExceeded2(item.shipped_exchange,item.exchange_quantity)" >
+                               max="20000" :rules="shippedexchange"  v-model="item.shipped_exchange" outlined dense />
+    <span v-if="isQuantityExceeded2(item.shipped_exchange,item.exchange)" >
     </span>
           <!-- {{ item.carbs }} -->
         </td>
@@ -136,16 +146,16 @@
                 cols="12"
                 class="d-flex flex-wrap gap-4"
               >
-                <VBtn @click="saveOutputstock()">Save</VBtn>
+                <VBtn @click="validateForm()">Save</VBtn>
 
-                <VBtn
+                <!-- <VBtn
                   color="secondary"
                   variant="tonal"
                   type="reset"
                
                 >
                   Reset
-                </VBtn>
+                </VBtn> -->
               </VCol>
             </VRow>
           </VForm>
@@ -172,6 +182,9 @@ export default {
      props: ['so_id'],
    data(){
     return{
+      loading:false,
+       shippedexchange: [(v) => v === 0 || (!!v && `${v}`.trim() !== '') || 'shippedexchange Quantity Is Required'],
+            shippedquantity: [(v) => v === 0 || (!!v && `${v}`.trim() !== '') || 'shipped Quantity Is Required'],
        snackbar: false,
       snackbarText: '',
       timeout: 6000, // milliseconds
@@ -230,7 +243,7 @@ export default {
       },
       outputStockproducts:[],
       headers: [
-        // { text: 'Product ID', value: 'id'},
+        { text: 'SKU Name', value: 'sku_name'},
         { text: 'Exchange Quantity', value: 'exchange_quantity' },
         { text: 'Ordered Quantity', value: 'ordered_quantity' },
         { text: 'Available', value: 'warehouse_quantity' },
@@ -250,14 +263,34 @@ export default {
 
   //   return this.desserts.filter(item => item.oid === this.selectedPurchaseOrder);
   // },
+   filteredOutputstocks() {
+      // Filter purchaseHistory based on the condition
+      return this.outputStockproducts.filter(item => item.exchange_quantity > 0 || item.ordered_quantity > 0 );
+    }
 },
 mounted(){  
     this.Soid = this.$route.query.so_id
     console.log('Received po_id:', this.Soid);
     this.getOutputstockdetails();
+    setTimeout(() => {
+      this.loading = false; // Set loading to false when the operation is complete
+    }, 2000);
+
 },
    methods:{
-  
+  validateForm(){
+   this.$refs.purchaseOrderForm.validate().then(valid => {
+        console.log("form valid", valid.valid);
+        if (valid.valid == true) {
+         
+          this.saveOutputstock();
+        }else{
+           this.snackbar = true;
+            this.snackbarText = "Please give all mandatory fields"
+            this.color = "error";
+        }
+      }); 
+ },
       preventPaste(event) {
       const clipboardData = event.clipboardData || window.clipboardData
       const pastedData = clipboardData.getData('text')
@@ -284,6 +317,7 @@ mounted(){
             'Shipped': 4,
             'Delivered':5
           };
+          // this.outputStockproducts.filter(product => product.shipped_ordered > 0 || product.shipped_exchange > 0)
        const postData = {
           "so_id":  this.OutputStockDetails.so_id,
           "so_number": this.outputStock.so_number, 
@@ -299,7 +333,7 @@ mounted(){
           "total_quantity": this.OutputStockDetails.total_quantity,          
           "created_date": this.OutputStockDetails.created_date,          
           "shipped_date": this.outputStock.shipped_date,        
-          "products": this.outputStockproducts.filter(product => product.shipped_ordered > 0 || product.shipped_exchange > 0).map((product,index) => ({
+          "products": this.outputStockproducts.map((product,index) => ({
             "merchant_product_id": product.merchant_product_id,
                   "sku_name": product.sku_name,
                   "hsn_code": product.hsn_code,
@@ -328,11 +362,12 @@ mounted(){
        console.log('sit', this.isQuantityExceeded(product.shipped_ordered, product.ordered_quantity));
         return (
           this.isQuantityExceeded(product.shipped_ordered, product.ordered_quantity) || 
-          this.isQuantityExceeded2(product.shipped_exchange, product.exchange_quantity)       
+          this.isQuantityExceeded2(product.shipped_exchange, product.exchange)       
         );
       });
 
        if (validationErrors.length === 0) {
+         this.loading = true;
             this.postOutputstock(postData).then((response)=>{
              console.log('check the response',response);
                 // console.log('check the response',response.status);
@@ -340,7 +375,16 @@ mounted(){
                     this.snackbar = true;
                     this.color = "success";
                     this.formData = {};
-                    this.snackbarText = response.message;  
+                   
+                    this.snackbarText = response.message;
+                     setTimeout(() => {
+                        this.$router.push({
+                      name: 'Viewsaleshistory'
+                    }); 
+            }, 1500);   
+                    //  this.$router.push({
+                    //   name: 'Viewsaleshistory'
+                    // }); 
                     // this.getInputstockdetails();  
                   } else {          
                       this.snackbar = true;
@@ -369,7 +413,7 @@ mounted(){
          
         this.outputStock.so_number = this.OutputStockDetails.so_number;
         this.outputStock.merchant_name = this.OutputStockDetails.merchant_name;
-        this.outputStock.so_status = this.OutputStockDetails.so_status;
+        this.outputStock.so_status = 'Shipped';
         this.outputStockproducts = this.OutputStockDetails.products;
 //  if (Array.isArray(this.OutputStockDetails)) {
 //       this.OutputStockDetails.forEach(item => {
@@ -384,7 +428,8 @@ mounted(){
     },
 
      resolveStatusVariant (itm){
-      if (itm.warehouse_quantity < itm.ordered_quantity)
+      console.log('check quan',itm.warehouse_quantity > itm.ordered_quantity)
+      if (itm.warehouse_quantity > itm.ordered_quantity)
         return {
           color: 'success',
           // text: 'Created',

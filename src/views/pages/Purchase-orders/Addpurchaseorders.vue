@@ -62,7 +62,7 @@
                 <VSelect
                   v-model="formData.po_status"
                   label="PO Status"
-                  :items="['Draft','Created','Shared','Acknowledged','Received']"
+                  :items="['Draft','Created','Shared','Acknowledged']"
                   :rules="Statusrules"           
                 />
               </VCol>
@@ -134,9 +134,12 @@
         <td class="text-center">
           &#8377;{{ item.mrp }}
         </td>
+          <!-- <td class="text-center">
+          &#8377;{{ TaxDeductMRP[index] }}
+        </td> -->
         <td class="text-center">
           <VTextField  @keydown="preventDecimal" @paste="preventPaste"   
-          v-model="item.quantity" type="number" min="1" style="min-width:80px;"     
+          v-model="item.quantity" type="number" min="0" style="min-width:80px;"     
          
           />
           
@@ -147,19 +150,20 @@
         </td>
         <td class="text-center">
          &#8377; {{calculatedPricePerUnit[index]}} <br>
-          <!-- &#8377;{{ item.total_given_margin }} -->
+
       <VChip
         :color="colorTGMmargin(item.total_given_margin).color"
         class="font-weight-medium"
         size="small"
       >
         ({{ item.total_given_margin }})
-          <!-- {{ item.fat }} -->
+      
             </VChip>
         </td>
         <td class="text-center">
           &#8377;{{ calculatedTaxableAmount[index]}}
         </td>
+       
         <td class="text-center">
           &#8377;{{ calculatedCGSTAmount[index]}} <br/> 
           <!-- {{ item.cgst }} -->         
@@ -172,6 +176,12 @@
           <!-- {{ item.fat }} -->
             </VChip>
         </td>
+         <!-- <td class="text-center">
+          {{TaxfromSgst[index]}}
+        </td>
+        <td class="text-center">
+          {{TaxfromCgst[index]}}
+        </td> -->
         <td class="text-center">
            &#8377;{{ calculatedSGSTAmount[index]}} <br/> 
           <!-- {{ item.sgst }} -->
@@ -458,11 +468,16 @@ export default {
         { text: 'Product Name', value: 'sku_name' },
         { text: 'HSN', value: 'hsn_code' },
         { text: 'MRP', value: 'mrp' },
+        // { text: 'MRPD', value: 'TaxDeductMRP' },
+
         { text: 'Quantity', value: 'quantity'},
         { text: 'UOM', value: 'uom' },
         { text: 'Price/Unit', value: 'calculatedPricePerUnit' },        
         { text: 'TaxableAmount', value: 'calculatedTaxableAmount' },   
         { text: 'CGST', value: 'calculatedCGSTAmount' },  
+        // { text: 'CGST Tax', value: 'TaxfromCgst' },  
+        // { text: 'SGST Tax', value: 'TaxfromSgst' }, 
+
         { text: 'SGST', value: 'calculatedSGSTAmount' },  
         { text: 'Amount', value: 'calculateTotalamount' }, 
         { text: 'Actions', value: 'action' }, 
@@ -559,17 +574,56 @@ export default {
              return isNaN(cgstdata) ? 0 : cgstdata.toFixed(2);
          })
       },
-    calculatedPricePerUnit() {
+    TaxfromCgst(){
+           return this.AllBrandproducts.map(item => {
+                 const MRP =   parseFloat(item.mrp);
+                 const CGST =  parseFloat(item.cgst.replace('%', ''));
+                //  const SGST =  parseFloat(item.sgst.replace('%', ''));
+                const Tax1 = MRP-(MRP/(1+(CGST/100)));
+                return isNaN(Tax1) ? 0 : Tax1.toFixed(2);
+           })
+    },
+     TaxfromSgst(){
+           return this.AllBrandproducts.map(item => {
+                 const MRP =   parseFloat(item.mrp);
+                 const SGST =  parseFloat(item.sgst.replace('%', ''));
+                //  const SGST =  parseFloat(item.sgst.replace('%', ''));
+                const Tax2 = MRP-(MRP/(1+(SGST/100)));
+                return isNaN(Tax2) ? 0 : Tax2.toFixed(2);
+           })
+    },
+calculatedPricePerUnit(){
+    return this.AllBrandproducts.map((item,index) => {
+      const Mrp = parseFloat(this.TaxDeductMRP[index]);
+      // console.log('Dedect MRP',Mrp);
+
+        const totalGivenMargin = parseFloat(item.total_given_margin.replace('%', ''));
+      // console.log('Mar',totalGivenMargin);
+
+     const pricePerUnit = Mrp - (Mrp * totalGivenMargin) / 100; 
+      
+      return isNaN(pricePerUnit) ? 0 : pricePerUnit.toFixed(2);
+     
+    });
+},
+    TaxDeductMRP() {
       // const item = this.AllBrandproducts[index];
-     return this.AllBrandproducts.map(item => {
+     return this.AllBrandproducts.map((item,index) => {
       const mrp = parseFloat(item.mrp);
-      const totalGivenMargin = parseFloat(item.total_given_margin.replace('%', ''));
+      const TaxCGST =  parseFloat(this.TaxfromCgst[index]);
+      const TaxSGST =  parseFloat(this.TaxfromSgst[index]);
+      // console.log('m Total deduct',mrp-(TaxCGST+TaxSGST));
+      // console.log('mr sgst deduct',TaxSGST);
+
+      const tmrp =  mrp-(TaxCGST+TaxSGST);
+      // console.log('mrp deduct',tmrp);
+      // const totalGivenMargin = parseFloat(item.total_given_margin.replace('%', ''));
       // const quantity = parseFloat(item.quantity);
       // Calculate the price per unit using the formula
-      const pricePerUnit = mrp - (mrp * totalGivenMargin) / 100;
+      // const pricePerUnit = tmrp - (tmrp * totalGivenMargin) / 100;
 
       // Round the result to two decimal places
-      return isNaN(pricePerUnit) ? 0 : pricePerUnit.toFixed(2);
+      return isNaN(tmrp) ? 0 : tmrp.toFixed(2);
       // return pricePerUnit.toFixed(2);
       //  const roundedPricePerUnit = pricePerUnit.toFixed(2);
       //   this.AllBrandproducts[index] = { ...item, roundedPricePerUnit };
@@ -579,6 +633,7 @@ export default {
   calculatedTaxableAmount() {
     return this.AllBrandproducts.map((item, index) => {
     const quantitt = parseFloat(item.quantity);
+    console.log('quanti',quantitt);
     const rawPricePerUnit = this.calculatedPricePerUnit[index];
     const pricePerUnit = parseFloat(rawPricePerUnit);
 
