@@ -1151,20 +1151,25 @@ calculatedPricePerUnit(){
  calculatedTaxableAmount() {
   return this.AllBrandproducts.map((item, index) => {
     const quantitt = parseFloat(item.quantity);
-    const rawPricePerUnit = this.calculatedPricePerUnit[index];
-    const pricePerUnit = parseFloat(rawPricePerUnit);
+    console.log('check the quantity',quantitt)
+    const rawPricePerUnit = parseFloat(this.calculatedPricePerUnit[index]);
+    console.log('check the Priceperunit',rawPricePerUnit)
+
+    // const pricePerUnit = parseFloat(rawPricePerUnit);
+    // console.log('check the raw Priceperunit',pricePerUnit)
+
 
     // Skip calculation if quantity is 0
-    // if (quantitt === 0) {
-    //   return 0;
-    // }
+    if (quantitt === 0) {
+      return 0;
+    }
 
-    // if (isNaN(quantitt) || isNaN(pricePerUnit)) {
-    //   console.log(`Invalid quantity or price at index ${index}`);
-    //   return 0; // or any default value
-    // }
+    if (isNaN(quantitt) || isNaN(rawPricePerUnit)) {
+      console.log(`Invalid quantity or price at index ${index}`);
+      return 0; // or any default value
+    }
 
-    const taxableAmount = quantitt * pricePerUnit;
+    const taxableAmount = (quantitt * rawPricePerUnit);
     return isNaN(taxableAmount) ? 0 : taxableAmount.toFixed(2);
   });
 }
@@ -1275,17 +1280,51 @@ calculatedPricePerUnit(){
         this.AllBrandproducts.splice(index, 1)
       }
     },
-    saveProducteditData() {
-      // console.log('check the CGST Amount',this.allCGSTAmount);
-      const statusMapping = {
+  saveProducteditData() {
+    const statusMapping = {
         Draft: 1,
         Created: 2,
         Shared: 3,
         Acknowledged: 4,
         Received: 5,
-      }
-      const existingProductIds = this.editProduct.map(editProduct => editProduct.brand_product_id)
-      const postData = {
+    }
+
+    const maxLength = Math.max(
+        this.AllBrandproducts.length,
+        this.calculatedPricePerUnit.length,
+        this.calculatedTaxableAmount.length,
+        this.calculatedCGSTAmount.length,
+        this.calculatedSGSTAmount.length,
+        this.calculateTotalamount.length
+    );
+
+    const products = [];
+
+    for (let i = 0; i < maxLength; i++) {
+        const product = this.AllBrandproducts[i];
+        if (!product || product.quantity <= 0) continue;
+
+        products.push({
+            brand_product_id: product.brand_product_id,
+            sku_name: product.sku_name,
+            hsn_code: product.hsn_code,
+            mrp: product.mrp,
+            quantity: `${product.quantity}`,
+            uom: product.uom,
+            price_per_unit: this.calculatedPricePerUnit[i] || '0', // Accessing with index safely
+            taxable_amount: this.calculatedTaxableAmount[i] || '0', // Accessing with index safely
+            csgt: this.calculatedCGSTAmount[i] || '0', // Accessing with index safely
+            sgst: this.calculatedSGSTAmount[i] || '0', // Accessing with index safely
+            amount: this.calculateTotalamount[i] || '0', // Accessing with index safely
+            sgst_percentage: product.sgst.includes('%') ? `${product.sgst}` : `${product.sgst}%`,
+            cgst_percentage: product.cgst.includes('%') ? `${product.cgst}` : `${product.cgst}%`,
+            total_give_margin: product.total_given_margin,
+        });
+    }
+
+    const existingProductIds = this.editProduct.map(editProduct => editProduct.brand_product_id);
+
+    const postData = {
         brand_id: this.selectedBrandId,
         user_id: this.userIds,
         created_date: this.productData.created_date,
@@ -1297,62 +1336,44 @@ calculatedPricePerUnit(){
         total_po_amount: `${this.allAmmount}`,
         total_quantity: `${this.allQuantity}`,
         po_id: this.productData.po_id,
-        // purchase_order_file:''
         po_number: this.productData.po_number,
-        products: this.AllBrandproducts.filter(product => product.quantity > 0)
-          .map((product, index) => ({
-            brand_product_id: product.brand_product_id,
-            sku_name: product.sku_name,
-            hsn_code: product.hsn_code,
-            mrp: product.mrp,
-            quantity: `${product.quantity}`,
-            uom: product.uom,
-            price_per_unit: `${this.calculatedPricePerUnit[index]}`,
-            taxable_amount: `${this.calculatedTaxableAmount[index]}`,
-            csgt: `${this.calculatedCGSTAmount[index]}`,
-            sgst: `${this.calculatedSGSTAmount[index]}`,
-            amount: `${this.calculateTotalamount[index]}`,
-            sgst_percentage:product.sgst.includes('%') ? `${product.sgst}` : `${product.sgst}%`,
-            cgst_percentage:product.cgst.includes('%') ? `${product.cgst}` : `${product.cgst}%`,
-            total_give_margin: product.total_given_margin,
-          }))
-          .concat(
-            this.editProduct
-              .filter(editProduct => !existingProductIds.includes(editProduct.brand_product_id))
-              .map(editProduct => ({
-                brand_product_id: editProduct.brand_product_id,
-                sku_name: editProduct.sku_name,
-                hsn_code: editProduct.hsn_code,
-                mrp: editProduct.mrp,
-                quantity: editProduct.quantity,
-                uom: editProduct.uom,
-                price_per_unit: editProduct.price_per_unit,
-                taxable_amount: editProduct.taxable_amount,
-                csgt: editProduct.cgst,
-                sgst: editProduct.sgst,
-                amount: editProduct.amount,
-                total_give_margin: editProduct.total_give_margin,
-              })),
-          ),
-      }
-      console.log('check the post data', postData)
+        products: products.concat(
+            this.editProduct.filter(editProduct => !existingProductIds.includes(editProduct.brand_product_id))
+                .map(editProduct => ({
+                    brand_product_id: editProduct.brand_product_id,
+                    sku_name: editProduct.sku_name,
+                    hsn_code: editProduct.hsn_code,
+                    mrp: editProduct.mrp,
+                    quantity: editProduct.quantity,
+                    uom: editProduct.uom,
+                    price_per_unit: editProduct.price_per_unit,
+                    taxable_amount: editProduct.taxable_amount,
+                    csgt: editProduct.cgst,
+                    sgst: editProduct.sgst,
+                    amount: editProduct.amount,
+                    total_give_margin: editProduct.total_give_margin,
+                }))
+        ),
+    };
 
-      this.postupdatePurchaseorder(postData).then(response => {
-        console.log('check the response', response)
-        console.log('check the response', response.status)
+    console.log('check the post data', postData);
+
+    this.postupdatePurchaseorder(postData).then(response => {
+        console.log('check the response', response);
+        console.log('check the response', response.status);
         if (response.status == 1) {
-          this.snackbar = true
-          this.color = 'success'
-          this.formData = {}
-          this.snackbarText = response.message
-          this.getPurchaseorderdetails()
-          this.dialog = false;          
+            this.snackbar = true;
+            this.color = 'success';
+            this.formData = {};
+            this.snackbarText = response.message;
+            this.getPurchaseorderdetails();
+            this.dialog = false;          
         } else {
-          this.snackbar = true
-          this.color = 'error'
+            this.snackbar = true;
+            this.color = 'error';
         }
-      })
-    },
+    });
+},
     preventPaste(event) {
       const clipboardData = event.clipboardData || window.clipboardData
       const pastedData = clipboardData.getData('text')

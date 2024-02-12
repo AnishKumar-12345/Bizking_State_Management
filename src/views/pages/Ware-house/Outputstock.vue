@@ -96,6 +96,9 @@
        <td  class="text-center">
            {{item.sku_name}}
           </td>
+            <td  class="text-center">
+           {{item.uom}}
+          </td>
         <td class="text-center">{{ item.exchange }}</td>
         <td class="text-center">
           {{ item.ordered_quantity }}
@@ -132,13 +135,24 @@
     </span>
           <!-- {{ item.carbs }} -->
         </td>
+       
         <!-- <td class="text-center">
           <VTextField v-model="item.protein" outlined dense />
 
         
         </td> -->
       </tr>
-      </tbody>        
+      </tbody>   
+      <!-- <tfoot>
+        <tr>
+           <td>
+          {{this.totalshippedorder}}
+        </td>
+        <td>
+          {{this.totalshippedexchange}}
+        </td>
+        </tr>
+        </tfoot>      -->
         </VTable>
 
               </VCol>
@@ -244,6 +258,8 @@ export default {
       outputStockproducts:[],
       headers: [
         { text: 'SKU Name', value: 'sku_name'},
+        { text: 'UOM', value: 'uom'},
+
         { text: 'Exchange Quantity', value: 'exchange_quantity' },
         { text: 'Ordered Quantity', value: 'ordered_quantity' },
         { text: 'Available', value: 'warehouse_quantity' },
@@ -263,6 +279,13 @@ export default {
 
   //   return this.desserts.filter(item => item.oid === this.selectedPurchaseOrder);
   // },
+ totalshippedorder() {
+      return this.outputStockproducts.reduce((total, item) => total + parseFloat(item.shipped_ordered || 0), 0);
+    },
+    totalshippedexchange() {
+      return this.outputStockproducts.reduce((total, item) => total + parseFloat(item.shipped_exchange || 0), 0);
+    },
+
    filteredOutputstocks() {
       // Filter purchaseHistory based on the condition
       return this.outputStockproducts.filter(item => item.exchange_quantity > 0 || item.ordered_quantity > 0 );
@@ -332,7 +355,9 @@ mounted(){
           "total_so_amount": this.OutputStockDetails.total_so_amount,          
           "total_quantity": this.OutputStockDetails.total_quantity,          
           "created_date": this.OutputStockDetails.created_date,          
-          "shipped_date": this.outputStock.shipped_date,        
+          "shipped_date": this.outputStock.shipped_date,  
+          "total_shipped_ordered": `${this.totalshippedorder}` ,
+          "total_shipped_exchanged": `${this.totalshippedexchange}`,
           "products": this.outputStockproducts.map((product,index) => ({
             "merchant_product_id": product.merchant_product_id,
                   "sku_name": product.sku_name,
@@ -428,8 +453,8 @@ mounted(){
     },
 
      resolveStatusVariant (itm){
-      console.log('check quan',itm.warehouse_quantity > itm.ordered_quantity)
-      if (itm.warehouse_quantity > itm.ordered_quantity)
+      // console.log('check quan',itm.warehouse_quantity > itm.ordered_quantity)
+      if (itm.warehouse_quantity >= itm.ordered_quantity)
         return {
           color: 'success',
           // text: 'Created',
@@ -438,7 +463,7 @@ mounted(){
       
       else
         return {
-          color: 'error',
+          color: 'success',
           // text: 'Shared',
         }
       },

@@ -123,7 +123,7 @@ export default{
             { id: 43, title: 'Output Stock', route: '/Createwarehouseoutput' },
              { id: 44, title: 'View Stock', route: '/Viewstoreinventory' },
             //  { id: 45, title: 'Generate D.C', route: '/tables' },                    
-            //   { id: 46, title: 'Update RTV', route: '/tables' },  
+              { id: 46, title: 'Update RTV', route: '/Returnwarehousegoods' },  
           ],
           expanded: false,
         },

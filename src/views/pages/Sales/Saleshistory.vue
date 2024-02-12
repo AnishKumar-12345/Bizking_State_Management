@@ -115,7 +115,7 @@
         <td  class="text-center ">
           <!-- {{item.actions}} -->
             <VBtn
-            v-if="item.so_status != 'Shipped'"
+            v-if="item.so_status != 'Shipped' && item.so_status != 'Delivered'"
                 icon
                 variant="text"
                 color="success"
@@ -133,7 +133,7 @@
 
              <VBtn
 
-             v-if="item.so_status == 'Shipped'"
+             v-if="item.so_status == 'Shipped' || item.so_status == 'Delivered'"
               icon
               variant="text"
               color="default"
@@ -214,6 +214,7 @@ export default {
           getPDFupdate(id){
       this.loading2 = true;
        window.open(id, '_blank');
+        this.loading2 = false;
       // this.getPurchasePDF(id).then((response)=>{
       //   console.log(response)
       //   const pdfUrl = response.data.po_file;
