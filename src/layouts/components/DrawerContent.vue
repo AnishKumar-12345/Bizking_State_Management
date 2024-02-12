@@ -149,20 +149,51 @@ export default{
   mounted(){
     const vuetifyTheme = useTheme()
   },
+  created() {
+    // Add navigation guard
+    this.$router.beforeEach((to, from, next) => {
+      // Get the route segments
+      const routeSegments = to.path.split('/');
+      // Get the last segment of the route (page name)
+      const pageName = routeSegments[routeSegments.length - 1];
+      // Loop through parent items to find the corresponding item
+      const parentItem = this.parentItems.find(item => {
+        if (item.children) {
+          // Check if any child item's route matches the current page name
+          return item.children.some(child => child.route === '/' + pageName);
+        }
+        return false;
+      });
+      if (parentItem) {
+        // Set expanded property to true to automatically open the menu item
+        parentItem.expanded = true;
+      }
+      // Continue with the navigation
+      next();
+    });
+  },
    methods: {
     toggleChildren(parentItem) {
+       console.log('Toggling children for:', parentItem.title);
       parentItem.expanded = !parentItem.expanded;  
        this.parentItems.forEach(item => {
         if (item !== parentItem) {
           item.expanded = false;
 
         }
+  
       });  
+      //  if (!parentItem.expanded) {
+      //   this.selectedChild = null;
+      // }
+      // console.log('Parent item expanded:', parentItem.expanded);
     },
     navigateTo(route,id) {
+       console.log('Navigating to route:', route);
       this.$router.push(route);
       console.log(id)
-      this.selectedChild = id
+      this.selectedChild = id;
+       console.log('Selected child:', this.selectedChild);
       //  this.selectedChild = childItem.id;
     },
   },

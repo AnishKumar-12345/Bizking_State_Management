@@ -177,6 +177,7 @@ export default {
           name: 'Createwarehouseinput', // Replace with the actual name of your route
           query: { po_id: itm.po_id }
         });
+        // this.navigateTo('/Createwarehouseinput', 42);
         
       },
       getPurchasehistorydetails(){
